@@ -6,6 +6,7 @@ static DATA_ENDPOINT: &str = "https://data.lemon.markets/v1/";
 static LIVE_ENDPOINT: &str = "https://trading.lemon.markets/v1/";
 
 use reqwest::Url;
+
 #[derive(Debug)]
 /// The client for the Lemon API.
 pub struct Client {
@@ -13,8 +14,8 @@ pub struct Client {
     pub api_key: String,
     /// The base url for the API
     pub base_url: Url,
-    /// private reqwest client
-    client: reqwest::Client,
+    /// Internal client used for all requests.
+    pub(crate) client: reqwest::blocking::Client,
 }
 
 impl Client {
@@ -26,6 +27,9 @@ impl Client {
             base_url: base_url.parse::<Url>().unwrap(), // Usage of unwrap here is safe, as the url is always valid
             client,
         }
+    }
+    fn test(self: Client) {
+        println!("{:?}", self);
     }
 
     /// Create a new client for paper trading with the given API key.
@@ -46,13 +50,13 @@ impl Client {
 
 /// Private function
 /// Builds a reqwest client with the given API key as a bearer auth token
-fn build_reqwest_client(api_key: &str) -> reqwest::Client {
+fn build_reqwest_client(api_key: &str) -> reqwest::blocking::Client {
     let mut headers = reqwest::header::HeaderMap::new();
     headers.insert(
         reqwest::header::AUTHORIZATION,
         reqwest::header::HeaderValue::from_str(&format!("Bearer {}", api_key)).unwrap(),
     );
-    reqwest::Client::builder()
+    reqwest::blocking::Client::builder()
         .default_headers(headers)
         .build()
         .unwrap()
