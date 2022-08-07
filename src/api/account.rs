@@ -43,6 +43,9 @@ pub struct AccountResults {
 impl Client {
     async fn get_account_information(&self) -> Result<AccountResults, reqwest::Error> {
         let resp = &self.get::<AccountResults>("/account");
-        Ok(resp)
+        match resp {
+            Ok(account) => Ok(account),
+            Err(e) => Err(e),
+        }
     }
 }
