@@ -50,8 +50,8 @@ pub struct AccountResults {
 
 impl Client {
     fn get_account_information(&self) -> Result<AccountInformation, Error> {
-        const path: &str = "account";
-        let resp = self.get::<AccountInformation>(path);
+        const PATH: &str = "account";
+        let resp = self.get::<AccountInformation>(PATH);
         match resp {
             Ok(r) => Ok(r),
             Err(e) => Err(e),
@@ -63,14 +63,13 @@ impl Client {
 mod test {
     use std::env;
 
-    use super::*;
     use crate::*;
     #[test]
     fn test_get_account_information() {
         dotenv::dotenv().unwrap();
-        let api_key = env::var("LEMON_API_KEY").unwrap();
+        let api_key = env::var("LEMON_MARKET_TRADING_API_KEY").unwrap();
         let client = client::Client::paper_client(&api_key);
         let resp = client.get_account_information().unwrap();
-        dbg!(resp);
+        assert_eq!(resp.status, "ok");
     }
 }
