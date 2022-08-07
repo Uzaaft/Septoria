@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::client::Client;
+use crate::{client::Client, error::Error};
 
 /// Struct for account information.
 // TODO: Make periods into chrono types
@@ -41,10 +41,11 @@ pub struct AccountResults {
 }
 
 impl Client {
-    async fn get_account_information(&self) -> Result<AccountResults, reqwest::Error> {
-        let resp = &self.get::<AccountResults>("/account");
+    async fn get_account_information(&self) -> Result<AccountResults, Error> {
+        const path: &str = "account";
+        let resp = self.get::<AccountResults>(path);
         match resp {
-            Ok(account) => Ok(account),
+            Ok(r) => Ok(r),
             Err(e) => Err(e),
         }
     }
