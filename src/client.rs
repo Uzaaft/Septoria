@@ -28,9 +28,7 @@ impl Client {
             client,
         }
     }
-    fn test(self: Client) {
-        println!("{:?}", self);
-    }
+
 
     /// Create a new client for paper trading with the given API key.
     pub fn paper_client(api_key: &str) -> Self {
