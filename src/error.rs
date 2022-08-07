@@ -1,8 +1,20 @@
 /// In general, an error will be returned in the following format.
 /// Lemons docks: [Error Handling](https://docs.lemon.markets/error-handling)
 use chrono::{serde::ts_milliseconds, DateTime, Utc};
+use reqwest::Error as ReqwestError;
 use serde::Deserialize;
+use serde_json::Error as JsonError;
 use thiserror::Error;
+
+#[derive(Debug, Error)]
+pub enum Error {
+    #[error("Encountered an Reqwest related error")]
+    Reqwest(
+        #[from]
+        #[source]
+        ReqwestError,
+    ),
+}
 
 #[derive(Debug, Deserialize, Error)]
 #[error("")]
