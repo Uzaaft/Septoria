@@ -2,6 +2,14 @@ use serde::{Deserialize, Serialize};
 
 use crate::{client::Client, error::Error};
 
+#[derive(Deserialize, Debug)]
+pub struct AccountInformation {
+    pub time: String,
+    pub mode: String,
+    pub status: String,
+    pub results: AccountResults,
+}
+
 /// Struct for account information.
 // TODO: Make periods into chrono types
 #[derive(Serialize, Deserialize, Debug)]
@@ -41,12 +49,28 @@ pub struct AccountResults {
 }
 
 impl Client {
-    async fn get_account_information(&self) -> Result<AccountResults, Error> {
+    fn get_account_information(&self) -> Result<AccountInformation, Error> {
         const path: &str = "account";
-        let resp = self.get::<AccountResults>(path);
+        let resp = self.get::<AccountInformation>(path);
         match resp {
             Ok(r) => Ok(r),
             Err(e) => Err(e),
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use std::env;
+
+    use super::*;
+    use crate::*;
+    #[test]
+    fn test_get_account_information() {
+        dotenv::dotenv().unwrap();
+        let api_key = env::var("LEMON_API_KEY").unwrap();
+        let client = client::Client::paper_client(&api_key);
+        let resp = client.get_account_information().unwrap();
+        dbg!(resp);
     }
 }
