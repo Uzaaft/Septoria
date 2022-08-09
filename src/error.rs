@@ -1,5 +1,3 @@
-use std::borrow::Cow;
-
 /// In general, an error will be returned in the following format.
 /// Lemons docks: [Error Handling](https://docs.lemon.markets/error-handling)
 use reqwest::{Error as ReqwestError, StatusCode};
