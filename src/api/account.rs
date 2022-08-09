@@ -3,11 +3,11 @@ use serde::{Deserialize, Serialize};
 use crate::{client::Client, error::Error};
 
 #[derive(Deserialize, Debug)]
-pub struct AccountInformation {
+pub struct AccountInformation<T> {
     pub time: String,
     pub mode: String,
     pub status: String,
-    pub results: AccountResults,
+    pub results: T,
 }
 
 /// Struct for account information.
@@ -48,10 +48,46 @@ pub struct AccountResults {
     pub tax_allowance_end: Option<String>,
 }
 
+#[derive(Deserialize, Debug)]
+pub struct WithdrawalResponse {
+    pub time: String,
+    pub status: String,
+    pub mode: String,
+    pub results: Vec<Withdrawal>,
+    pub previous: Option<String>,
+    pub next: Option<String>,
+    pub total: i64,
+    pub page: i32,
+    pub pages: i32,
+}
+#[derive(Deserialize, Debug)]
+pub struct Withdrawal {
+    pub id: String,
+    pub amount: i64,
+    pub created_at: String,
+    pub date: Option<String>,
+    pub idempotency: Option<String>,
+}
+
 impl Client {
-    fn get_account_information(&self) -> Result<AccountInformation, Error> {
+    /// Get account information
+    pub fn get_account_information(&self) -> Result<AccountInformation<AccountResults>, Error> {
         const PATH: &str = "account";
-        let resp = self.get::<AccountInformation>(PATH);
+        let resp = self.get::<AccountInformation<AccountResults>>(PATH);
+        match resp {
+            Ok(r) => Ok(r),
+            Err(e) => Err(e),
+        }
+    }
+
+    /// Get account withdrawls
+    pub fn get_account_withdrawls(
+        &self,
+        limit: Option<i32>,
+        page: Option<i32>,
+    ) -> Result<WithdrawalResponse, Error> {
+        const PATH: &str = "account/withdrawals/";
+        let resp = self.get::<WithdrawalResponse>(PATH);
         match resp {
             Ok(r) => Ok(r),
             Err(e) => Err(e),
@@ -70,6 +106,16 @@ mod test {
         let api_key = env::var("LEMON_MARKET_TRADING_API_KEY").unwrap();
         let client = client::Client::paper_client(&api_key);
         let resp = client.get_account_information().unwrap();
+        assert_eq!(resp.status, "ok");
+    }
+
+    #[test]
+    fn test_get_account_withdrawls() {
+        dotenv::dotenv().unwrap();
+        let api_key = env::var("LEMON_MARKET_TRADING_API_KEY").unwrap();
+        let client = client::Client::paper_client(&api_key);
+        let resp = client.get_account_withdrawls(None, None).unwrap();
+        dbg!(&resp);
         assert_eq!(resp.status, "ok");
     }
 }
