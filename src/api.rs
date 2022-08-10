@@ -13,6 +13,17 @@ impl Client {
         Ok(r)
     }
 
+    /// Generic get request with query parameters
+    pub fn get_with_query<T: DeserializeOwned, Q: IntoIterator + Serialize>(
+        &self,
+        path: &str,
+        query: Q,
+    ) -> Result<T, Error> {
+        let url = format!("{}/{}", self.base_url, path);
+        let r = self.client.get(&url).query(&query).send()?.json::<T>()?;
+        Ok(r)
+    }
+
     /// Generic post request
     pub fn post<T: DeserializeOwned, B: Serialize>(&self, path: &str, body: B) -> Result<T, Error> {
         let url = format!("{}/{}", self.base_url, path);
