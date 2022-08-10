@@ -1,5 +1,5 @@
 use reqwest::StatusCode;
-use serde::de::DeserializeOwned;
+use serde::{de::DeserializeOwned, Serialize, Serializer};
 
 use crate::{client::Client, error::Error};
 
@@ -7,19 +7,27 @@ pub mod account;
 
 impl Client {
     /// Generic get request
-    fn get<T: DeserializeOwned>(&self, path: &str) -> Result<T, Error> {
+    pub fn get<T: DeserializeOwned>(&self, path: &str) -> Result<T, Error> {
         let url = format!("{}/{}", self.base_url, path);
         let r = self.client.get(&url).send()?.json::<T>()?;
         Ok(r)
     }
 
     /// Generic post request
-    fn post<T: DeserializeOwned>(&self, path: &str, body: String) -> Result<T, Error> {
+    pub fn post<T: DeserializeOwned, B: Serialize>(&self, path: &str, body: B) -> Result<T, Error> {
         let url = format!("{}/{}", self.base_url, path);
-        let r = self.client.post(&url).body(body).send()?.json::<T>()?;
+        let body_string = serde_json::to_string(&body)?;
+        let r = self
+            .client
+            .post(&url)
+            .body(body_string)
+            .send()?
+            .json::<T>()?;
         Ok(r)
     }
 
+    /// Private utility function to handle responses and errors
+    // TODO: Actually use this in the code
     fn response_handler<T: DeserializeOwned>(
         &self,
         response: reqwest::blocking::Response,
