@@ -37,6 +37,17 @@ impl Client {
         Ok(r)
     }
 
+    /// Generic delete request
+    pub fn delete<T: DeserializeOwned, PP: Serialize>(
+        &self,
+        path: &str,
+        path_param: &str,
+    ) -> Result<T, Error> {
+        let url = format!("{}/{}/{}", self.base_url, path, path_param);
+        let r = self.client.delete(&url).send()?.json::<T>()?;
+        Ok(r)
+    }
+
     /// Private utility function to handle responses and errors
     // TODO: Actually use this in the code
     fn response_handler<T: DeserializeOwned>(
