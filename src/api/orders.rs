@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{client::Client, error::Error};
 
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 // The struct for placing an order - body of the post request
 pub struct OrderPlacing {
     pub isin: String,
@@ -18,30 +18,16 @@ pub struct OrderPlacingResponse {
     pub time: String,
     pub status: String,
     pub mode: String,
-    // pub results: Option<T>,
-
-    // pub created_at: Option<String>,
-    // pub expires_at: Option<String>,
-    // pub side: Option<String>,
-    // pub quantity: Option<i64>,
-    // pub stop_price: Option<i64>,
-    // pub limit_price: Option<i64>,
-    // pub venue: Option<i64>,
-    // pub estimated_price: Option<i64>,
-    // pub notes: Option<String>,
-    // pub idempotency: Option<String>,
-    // pub charge: Option<i64>,
-    // pub chargeable_at: Option<String>,
-    // pub key_creation_id: Option<String>
+    // pub results: Option<OrderResults>,
 
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct OrderResults<RegulatoryInformation> {
+pub struct OrderResults {
     pub created_at: String,
     pub id: String,
     pub status: String,
-    pub regulatory_information: Option<RegulatoryInformation>
+    // pub regulatory_information: Option<RegulatoryInformation>
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -75,8 +61,8 @@ impl Client {
         &self,
         _body: OrderPlacing
     ) -> Result<OrderPlacingResponse, Error> {
-        const PATH: &str = "account/withdrawals/";
-        let resp = self.get::<OrderPlacingResponse>(PATH);
+        const PATH: &str = "orders/";
+        let resp = self.post::<OrderPlacingResponse, _>(PATH, _body);
         match resp {
             Ok(r) => Ok(r),
             Err(e) => Err(e),
@@ -97,11 +83,12 @@ mod test {
         let client = client::Client::paper_client(&api_key);
         let body = super::OrderPlacing {
             isin: "US0378331005".to_string(),
-            expires_at: None,
+            expires_at: Some("2022-08-13".to_string()),
             side: "buy".to_string(),
             quantity: 1,
-            venue: None,
+            venue: Some("XMUN".to_string()),
         };
+        dbg!(&body);
         
         let resp = client.post_an_order(body).unwrap();
         dbg!(&resp);
