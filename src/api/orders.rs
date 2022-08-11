@@ -14,26 +14,39 @@ pub struct OrderPlacing {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub enum BuyOrSell {
-    Buy,
-    Sell
+    buy,
+    sell
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 // The struct for placing an order - the response of the request
-pub struct OrderPlacingResponse {
+pub struct OrderPlacingResponse<T> {
     pub time: String,
     pub status: String,
     pub mode: String,
-    // pub results: Option<OrderResults>,
-
+    pub results: Option<T>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+// The struct for placing an order - the results response of the request
 pub struct OrderResults {
     pub created_at: String,
     pub id: String,
     pub status: String,
-    // pub regulatory_information: Option<RegulatoryInformation>
+    pub regulatory_information: Option<RegulatoryInformation>,
+    pub isin: Option<String>,
+    pub expires_at: Option<String>,
+    pub side: Option<BuyOrSell>,
+    pub quantity: Option<i64>,
+    pub stop_price: Option<String>,
+    pub limit_price: Option<String>,
+    pub venue: Option<String>,
+    pub estimated_price: Option<i64>,
+    pub notes: Option<String>,
+    pub idempotency: Option<String>,
+    pub charge: Option<i64>,
+    pub chargeable_at: Option<String>,
+    pub key_creation_id: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -66,9 +79,9 @@ impl Client {
     pub fn post_an_order(
         &self,
         _body: OrderPlacing
-    ) -> Result<OrderPlacingResponse, Error> {
+    ) -> Result<OrderPlacingResponse<OrderResults>, Error> {
         const PATH: &str = "orders/";
-        let resp = self.post::<OrderPlacingResponse, _>(PATH, _body);
+        let resp = self.post::<OrderPlacingResponse<OrderResults>, _>(PATH, _body);
         match resp {
             Ok(r) => Ok(r),
             Err(e) => Err(e),
@@ -90,7 +103,7 @@ mod test {
         let body = super::OrderPlacing {
             isin: "US0378331005".to_string(),
             expires_at: Some("2022-08-13".to_string()),
-            side: super::BuyOrSell::Buy,
+            side: super::BuyOrSell::buy,
             quantity: 1,
             venue: Some("XMUN".to_string()),
         };
