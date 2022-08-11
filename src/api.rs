@@ -4,6 +4,7 @@ use serde::{de::DeserializeOwned, Serialize, Serializer};
 use crate::{client::Client, error::Error};
 
 pub mod account;
+pub mod orders;
 
 impl Client {
     /// Generic get request
