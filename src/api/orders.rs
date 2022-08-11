@@ -7,9 +7,15 @@ use crate::{client::Client, error::Error};
 pub struct OrderPlacing {
     pub isin: String,
     pub expires_at: Option<String>,
-    pub side: String, // "buy" or "sell"
+    pub side: BuyOrSell, // "buy" or "sell"
     pub quantity: i64,
     pub venue: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub enum BuyOrSell {
+    Buy,
+    Sell
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -84,7 +90,7 @@ mod test {
         let body = super::OrderPlacing {
             isin: "US0378331005".to_string(),
             expires_at: Some("2022-08-13".to_string()),
-            side: "buy".to_string(),
+            side: super::BuyOrSell::Buy,
             quantity: 1,
             venue: Some("XMUN".to_string()),
         };
