@@ -1,3 +1,4 @@
+use std::fmt::Debug;
 use reqwest::StatusCode;
 use serde::{de::DeserializeOwned, Serialize, Serializer};
 
@@ -7,21 +8,27 @@ pub mod account;
 
 impl Client {
     /// Generic get request
-    pub fn get<T: DeserializeOwned>(&self, path: &str) -> Result<T, Error> {
+    pub fn get<T: DeserializeOwned + Debug>(&self, path: &str) -> Result<T, Error> {
         let url = format!("{}/{}", self.base_url, path);
         let r = self.client.get(&url).send()?.json::<T>()?;
         Ok(r)
     }
 
     /// Generic get request with query parameters
-    pub fn get_with_query<T: DeserializeOwned, Q: IntoIterator + Serialize>(
+    pub fn get_with_query<T: DeserializeOwned + Debug, Q: IntoIterator + Serialize>(
         &self,
         path: &str,
         query: Q,
     ) -> Result<T, Error> {
         let url = format!("{}/{}", self.base_url, path);
-        let r = self.client.get(&url).query(&query).send()?.json::<T>()?;
-        Ok(r)
+        let r = self.client.get(&url).query(&query).send()?;
+        if r.status() == StatusCode::OK {
+            let r = r;
+            let r = r.json::<T>()?; // Panic happens here
+            Ok(r)
+        } else {
+            Err(Error::Str("error".to_string()))
+        }
     }
 
     /// Generic post request
@@ -32,9 +39,9 @@ impl Client {
             .client
             .post(&url)
             .body(body_string)
-            .send()?
-            .json::<T>()?;
-        Ok(r)
+            .send()?;
+            let json = r.json::<T>()?;
+        Ok(json)
     }
 
     /// Generic delete request

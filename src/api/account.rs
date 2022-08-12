@@ -1,4 +1,10 @@
+pub mod withdrawals;
+mod documents;
+
+use std::fmt;
+
 use serde::{Deserialize, Serialize};
+use serde_variant::to_variant_name;
 
 use crate::{client::Client, error::Error};
 
@@ -48,25 +54,71 @@ pub struct AccountResults {
     pub tax_allowance_end: Option<String>,
 }
 
-#[derive(Deserialize, Debug)]
-pub struct WithdrawalResponse {
+#[derive(Deserialize, Serialize, Debug)]
+pub struct PaginationResponse<T> {
     pub time: String,
     pub status: String,
     pub mode: String,
-    pub results: Vec<Withdrawal>,
+    pub results: Option<Vec<T>>,
     pub previous: Option<String>,
     pub next: Option<String>,
     pub total: i64,
     pub page: i32,
     pub pages: i32,
 }
-#[derive(Deserialize, Debug)]
-pub struct Withdrawal {
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct BankStatementResponse {
     pub id: String,
+    pub account_id: String,
+    #[serde(rename = "type")]
+    pub bankstatementtypes: BankStatementTypes,
+    pub date: String,
     pub amount: i64,
+    pub isin: String,
+    pub isin_title: String,
     pub created_at: String,
-    pub date: Option<String>,
-    pub idempotency: Option<String>,
+    pub quantity: i64,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+#[serde(rename_all = "snake_case")]
+pub enum BankStatementTypes {
+    PayIn,
+    PayOut,
+    OrderBuy,
+    OrderSell,
+    EodBalance,
+    Dividend,
+    TaxRefund,
+}
+
+// Porobably the easiest way  to implement Display.
+// TODO: This is a bit of a hack, but it might work for now.
+impl fmt::Display for BankStatementTypes {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match to_variant_name(self) {
+            Ok(name) => write!(f, "{}", name),
+            _ => write!(f, ""),
+        }
+    }
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub enum Sorting {
+    #[serde(rename = "asc_")]
+    Asc,
+    #[serde(rename = "desc")]
+    Desc,
+}
+
+impl fmt::Display for Sorting {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match to_variant_name(self) {
+            Ok(name) => write!(f, "{}", name),
+            _ => write!(f, ""),
+        }
+    }
 }
 
 impl Client {
@@ -80,17 +132,56 @@ impl Client {
         }
     }
 
-    /// Get account withdrawls
-    pub fn get_account_withdrawls(
+    /// Get bank statements
+    pub fn get_bank_statements(
         &self,
+        statement_type: Option<BankStatementTypes>,
+        from: Option<String>,
+        to: Option<String>,
+        sorting: Option<Sorting>,
         limit: Option<i32>,
-        page: Option<i32>,
-    ) -> Result<WithdrawalResponse, Error> {
-        const PATH: &str = "account/withdrawals/";
-        let resp = self.get::<WithdrawalResponse>(PATH);
+    ) -> Result<PaginationResponse<BankStatementResponse>, Error> {
+        let path = "account/bankstatements/";
+        let mut query = vec![];
+
+        if let Some(statement_type) = statement_type {
+            if let Ok(query_string) =
+                serde_urlencoded::to_string(&vec![("type", statement_type.to_string())])
+            {
+                query.push(query_string);
+            }
+        }
+        if let Some(from) = from {
+            if let Ok(query_string) = serde_urlencoded::to_string(&vec![("from", from)]) {
+                query.push(query_string);
+            }
+        }
+        if let Some(to) = to {
+            if let Ok(query_string) = serde_urlencoded::to_string(&vec![("to", to)]) {
+                query.push(query_string);
+            }
+        }
+        if let Some(sorting) = sorting {
+            if let Ok(query_string) =
+                serde_urlencoded::to_string(&vec![("sorting", sorting.to_string())])
+            {
+                query.push(query_string);
+            }
+        }
+
+        if let Some(limit) = limit {
+            if let Ok(query_string) =
+                serde_urlencoded::to_string(&vec![("limit", limit.to_string())])
+            {
+                query.push(query_string);
+            }
+        }
+        let resp = self
+            .get_with_query::<PaginationResponse<BankStatementResponse>, Vec<String>>(path, query);
         match resp {
             Ok(r) => Ok(r),
-            Err(e) => Err(e),
+            // Err(e) => Err(e),
+            Err(e) => Err(Error::Str(e.to_string())),
         }
     }
 }
@@ -109,13 +200,5 @@ mod test {
         assert_eq!(resp.status, "ok");
     }
 
-    #[test]
-    fn test_get_account_withdrawls() {
-        dotenv::dotenv().unwrap();
-        let api_key = env::var("LEMON_MARKET_TRADING_API_KEY").unwrap();
-        let client = client::Client::paper_client(&api_key);
-        let resp = client.get_account_withdrawls(None, None).unwrap();
-        dbg!(&resp);
-        assert_eq!(resp.status, "ok");
-    }
+
 }
