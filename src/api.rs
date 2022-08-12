@@ -5,10 +5,11 @@ use serde::{de::DeserializeOwned, Serialize};
 use crate::{client::Client, error::Error};
 
 pub mod account;
+mod positions;
 
 impl Client {
     /// Generic get request
-    pub fn get<T: DeserializeOwned + Debug>(&self, path: &str) -> Result<T, Error> {
+    pub(crate) fn get<T: DeserializeOwned + Debug>(&self, path: &str) -> Result<T, Error> {
         let url = format!("{}/{}", self.base_url, path);
         let r = self.client.get(&url).send()?;
         let json = self.response_handler(r)?;
@@ -16,7 +17,7 @@ impl Client {
     }
 
     /// Generic get request with query parameters
-    pub fn get_with_query<T: DeserializeOwned + Debug, Q: IntoIterator + Serialize>(
+    pub(crate) fn get_with_query<T: DeserializeOwned + Debug, Q: IntoIterator + Serialize>(
         &self,
         path: &str,
         query: Q,
@@ -28,7 +29,7 @@ impl Client {
     }
 
     /// Generic post request
-    pub fn post<T: DeserializeOwned, B: Serialize>(&self, path: &str, body: B) -> Result<T, Error> {
+    pub(crate) fn post<T: DeserializeOwned, B: Serialize>(&self, path: &str, body: B) -> Result<T, Error> {
         let url = format!("{}/{}", self.base_url, path);
         let body_string = serde_json::to_string(&body)?;
         let r = self
@@ -41,7 +42,7 @@ impl Client {
     }
 
     /// Generic delete request
-    pub fn delete<T: DeserializeOwned, PP: Serialize>(
+    pub(crate) fn delete<T: DeserializeOwned, PP: Serialize>(
         &self,
         path: &str,
         path_param: &str,
