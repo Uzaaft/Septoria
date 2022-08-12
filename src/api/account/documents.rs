@@ -1,5 +1,4 @@
 // TODO: Implement the code below. For now it's just commented out
-use crate::client::Client;
 
 /*
 #[derive(Deserialize, Serialize, Debug)]

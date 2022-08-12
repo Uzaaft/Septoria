@@ -1,6 +1,6 @@
 use std::fmt::Debug;
 use reqwest::StatusCode;
-use serde::{de::DeserializeOwned, Serialize, Serializer};
+use serde::{de::DeserializeOwned, Serialize};
 
 use crate::{client::Client, error::Error};
 
@@ -10,8 +10,9 @@ impl Client {
     /// Generic get request
     pub fn get<T: DeserializeOwned + Debug>(&self, path: &str) -> Result<T, Error> {
         let url = format!("{}/{}", self.base_url, path);
-        let r = self.client.get(&url).send()?.json::<T>()?;
-        Ok(r)
+        let r = self.client.get(&url).send()?;
+        let json = self.response_handler(r)?;
+        Ok(json)
     }
 
     /// Generic get request with query parameters
@@ -22,13 +23,8 @@ impl Client {
     ) -> Result<T, Error> {
         let url = format!("{}/{}", self.base_url, path);
         let r = self.client.get(&url).query(&query).send()?;
-        if r.status() == StatusCode::OK {
-            let r = r;
-            let r = r.json::<T>()?; // Panic happens here
-            Ok(r)
-        } else {
-            Err(Error::Str("error".to_string()))
-        }
+        let json = self.response_handler(r)?;
+        Ok(json)
     }
 
     /// Generic post request
@@ -40,7 +36,7 @@ impl Client {
             .post(&url)
             .body(body_string)
             .send()?;
-            let json = r.json::<T>()?;
+        let json = self.response_handler(r)?;
         Ok(json)
     }
 
@@ -51,13 +47,15 @@ impl Client {
         path_param: &str,
     ) -> Result<T, Error> {
         let url = format!("{}/{}/{}", self.base_url, path, path_param);
-        let r = self.client.delete(&url).send()?.json::<T>()?;
-        Ok(r)
+        let r = self.client.delete(&url).send()?;
+        // .json::<T>()?;
+        let json = self.response_handler::<T>(r)?;
+        Ok(json)
     }
 
     /// Private utility function to handle responses and errors
     // TODO: Actually use this in the code
-    fn response_handler<T: DeserializeOwned>(
+    pub(crate) fn response_handler<T: DeserializeOwned>(
         &self,
         response: reqwest::blocking::Response,
     ) -> Result<T, Error> {

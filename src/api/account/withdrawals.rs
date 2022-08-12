@@ -32,8 +32,8 @@ impl Client {
     // TODO: Add docs for params
     pub fn get_account_withdrawls(
         &self,
-        limit: Option<i32>,
-        page: Option<i32>,
+        _limit: Option<i32>,
+        _page: Option<i32>,
     ) -> Result<WithdrawalResponse, Error> {
         const PATH: &str = "account/withdrawals/";
         let resp = self.get::<WithdrawalResponse>(PATH);
