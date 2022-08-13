@@ -1,7 +1,8 @@
+use serde::{Deserialize, Serialize};
+
 use crate::api::PaginationResponse;
 use crate::client::Client;
 use crate::error::Error;
-use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Statement {
@@ -56,8 +57,9 @@ impl Client {
 
 #[cfg(test)]
 mod tests {
-    use crate::client;
     use std::env;
+
+    use crate::client;
 
     #[test]
     fn test_get_statement() {
@@ -69,4 +71,3 @@ mod tests {
         assert_eq!(statements.status, "ok");
     }
 }
-

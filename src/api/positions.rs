@@ -1,10 +1,10 @@
-mod statements;
-mod performance;
-
 use serde::{Deserialize, Serialize};
-use crate::{client::Client, error::Error};
-use crate::api::PaginationResponse;
 
+use crate::api::PaginationResponse;
+use crate::{client::Client, error::Error};
+
+mod performance;
+mod statements;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Position {
@@ -16,8 +16,8 @@ pub struct Position {
     pub estimated_price: i64,
 }
 
-impl Client{
-   /// Get all positions
+impl Client {
+    /// Get all positions
     pub fn get_positions(&self) -> Result<PaginationResponse<Position>, Error> {
         const PATH: &str = "positions/";
         let resp = self.get::<PaginationResponse<Position>>(PATH);
@@ -28,16 +28,17 @@ impl Client{
     }
 }
 
-
 #[cfg(test)]
-mod position_tests{
-    use crate::client::Client;
+mod position_tests {
     use std::env;
-    use super::*;
+
+    use crate::client::Client;
     use crate::*;
 
+    use super::*;
+
     #[test]
-    fn test_get_positions(){
+    fn test_get_positions() {
         dotenv::dotenv().unwrap();
         let api_key = env::var("LEMON_MARKET_TRADING_API_KEY").unwrap();
         let client = client::Client::paper_client(&api_key);

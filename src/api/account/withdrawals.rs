@@ -59,11 +59,13 @@ impl Client {
 }
 
 #[cfg(test)]
-mod withdrawal_tests {
+mod tests {
     use std::env;
 
-    use super::*;
     use crate::*;
+
+    use super::*;
+
     #[test]
     fn test_get_account_withdrawls() {
         dotenv::dotenv().unwrap();
@@ -75,6 +77,7 @@ mod withdrawal_tests {
     }
 
     #[test]
+    // TODO: Figure out why this often return 400 error
     fn test_post_withdrawal() {
         dotenv::dotenv().unwrap();
         let api_key = env::var("LEMON_MARKET_TRADING_API_KEY").unwrap();
@@ -82,7 +85,7 @@ mod withdrawal_tests {
         let withdrawal = WithdrawalRequest {
             amount: 100,
             pin: 1234,
-            idempotency: None
+            idempotency: None,
         };
         let resp = client.post_withdrawal(withdrawal).unwrap();
         dbg!(&resp);
