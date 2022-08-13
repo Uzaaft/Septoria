@@ -1,11 +1,25 @@
-use std::fmt::Debug;
 use reqwest::StatusCode;
-use serde::{de::DeserializeOwned, Serialize};
+use std::fmt::Debug;
 
 use crate::{client::Client, error::Error};
+use serde::de::DeserializeOwned;
+use serde::{Deserialize, Serialize};
 
 pub mod account;
 mod positions;
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct PaginationResponse<T> {
+    pub time: String,
+    pub status: String,
+    pub mode: String,
+    pub results: Option<Vec<T>>,
+    pub previous: Option<String>,
+    pub next: Option<String>,
+    pub total: i64,
+    pub page: i32,
+    pub pages: i32,
+}
 
 impl Client {
     /// Generic get request
@@ -29,14 +43,14 @@ impl Client {
     }
 
     /// Generic post request
-    pub(crate) fn post<T: DeserializeOwned, B: Serialize>(&self, path: &str, body: B) -> Result<T, Error> {
+    pub(crate) fn post<T: DeserializeOwned, B: Serialize>(
+        &self,
+        path: &str,
+        body: B,
+    ) -> Result<T, Error> {
         let url = format!("{}/{}", self.base_url, path);
         let body_string = serde_json::to_string(&body)?;
-        let r = self
-            .client
-            .post(&url)
-            .body(body_string)
-            .send()?;
+        let r = self.client.post(&url).body(body_string).send()?;
         let json = self.response_handler(r)?;
         Ok(json)
     }
@@ -66,6 +80,12 @@ impl Client {
                 let message = s.to_string();
                 Err(Error::Str(message))
             }
+        }
+    }
+    /// Private functions to handle query params
+    pub fn get_query_string<Q: Serialize>(query: Q, query_vector: &mut Vec<String>) {
+        if let Ok(query_string) = serde_urlencoded::to_string(&query) {
+            query_vector.push(query_string);
         }
     }
 }
