@@ -1,9 +1,10 @@
-use reqwest::StatusCode;
 use std::fmt::Debug;
 
-use crate::{client::Client, error::Error};
+use reqwest::StatusCode;
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
+
+use crate::{client::Client, error::Error};
 
 pub mod account;
 mod positions;

@@ -1,11 +1,11 @@
+use reqwest::Url;
+
 /// Paper endpoint url
 static PAPER_ENDPOINT: &str = "https://paper-trading.lemon.markets/v1/";
 /// Data endpoint url
 static DATA_ENDPOINT: &str = "https://data.lemon.markets/v1/";
 /// Trading endpoint url
 static LIVE_ENDPOINT: &str = "https://trading.lemon.markets/v1/";
-
-use reqwest::Url;
 
 #[derive(Debug)]
 /// The client for the Lemon API.
@@ -28,7 +28,6 @@ impl Client {
             client,
         }
     }
-
 
     /// Create a new client for paper trading with the given API key.
     pub fn paper_client(api_key: &str) -> Self {

@@ -1,12 +1,12 @@
-pub mod withdrawals;
-mod documents;
-
 use std::fmt;
 
 use serde::{Deserialize, Serialize};
 use serde_variant::to_variant_name;
 
 use crate::{client::Client, error::Error};
+
+mod documents;
+pub mod withdrawals;
 
 #[derive(Deserialize, Debug)]
 pub struct AccountInformation<T> {
@@ -55,23 +55,6 @@ pub struct AccountResults {
 }
 
 #[derive(Deserialize, Serialize, Debug)]
-pub struct PaginationResponse<T> {
-    pub time: String,
-    pub status: String,
-    pub mode: String,
-    pub results: Option<Vec<T>>,
-    pub previous: Option<String>,
-    pub next: Option<String>,
-    pub total: i64,
-    pub page: i32,
-    pub pages: i32,
-}
-
-
-
-
-
-#[derive(Deserialize, Serialize, Debug)]
 pub enum Sorting {
     #[serde(rename = "asc_")]
     Asc,
@@ -98,8 +81,6 @@ impl Client {
             Err(e) => Err(e),
         }
     }
-
-
 }
 
 #[cfg(test)]
@@ -107,6 +88,7 @@ mod test {
     use std::env;
 
     use crate::*;
+
     #[test]
     fn test_get_account_information() {
         dotenv::dotenv().unwrap();
@@ -115,6 +97,4 @@ mod test {
         let resp = client.get_account_information().unwrap();
         assert_eq!(resp.status, "ok");
     }
-
-
 }
