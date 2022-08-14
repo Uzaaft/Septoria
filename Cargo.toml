@@ -1,12 +1,12 @@
 [package]
-name = "Septoria"
+name = "septoria"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-chrono = { version = "0.4.21", features = ["serde"] }
+chrono = { version = "0.4.22", features = ["serde"] }
 serde = { version = "1.0.143", features = ["derive"] }
 serde_json = { version = "1.0.83" }
 thiserror = "1.0.32"
