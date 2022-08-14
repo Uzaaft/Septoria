@@ -142,20 +142,3 @@ impl Client {
         }
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::*;
-
-    #[test]
-    fn test_get_query_string() {
-        let mut query: Vec<String> = Vec::new();
-        let limit = 1;
-        let page = 2;
-        Client::get_query_string(query_tuple!(limit), &mut query);
-        Client::get_query_string(query_tuple!(page), &mut query);
-        assert_eq!(query[0], "limit=1");
-        assert_eq!(query[1], "page=2");
-    }
-}
