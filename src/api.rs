@@ -16,11 +16,6 @@ pub mod account;
 mod positions;
 
 /// Generic struct for Endpoints that returns pagination information alongside data
-#[derive(Deserialize, Serialize, Debug)]
-/// `PaginationResponse` is a struct that contains a `time` field of type `String`, a `status` field of
-/// type `String`, a `mode` field of type `String`, a `results` field of type `Option<Vec<T>>`, a
-/// `previous` field of type `Option<String>`, a `next` field of type `Option<String>`, a `total` field
-/// of type `i64`, a `page` field of type `i32`, and a `pages` field of type `i32`.
 ///
 /// Properties:
 ///
@@ -33,6 +28,8 @@ mod positions;
 /// * `total`: The total number of results available.
 /// * `page`: The current page number
 /// * `pages`: The total number of pages in the response.
+#[derive(Deserialize, Serialize, Debug)]
+
 pub struct PaginationResponse<T> {
     /// The time the request was made.
     pub time: String,
