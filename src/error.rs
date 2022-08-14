@@ -4,7 +4,6 @@ use reqwest::{Error as ReqwestError, StatusCode};
 use serde_json::Error as JsonError;
 use thiserror::Error;
 
-
 /// Error type for the library
 #[derive(Debug, Error)]
 pub enum Error {

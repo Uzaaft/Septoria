@@ -1,8 +1,7 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{client::Client, error::Error};
 use crate::api::Response;
-
+use crate::{client::Client, error::Error};
 
 /// Struct for the Withdrawal Request
 #[derive(Serialize, Deserialize, Debug)]
@@ -52,10 +51,7 @@ impl Client {
 
     /// Submit a new withdrawal
     /// TODO: Add docs for params
-    pub fn post_withdrawal(
-        &self,
-        withdrawal: WithdrawalRequest,
-    ) -> Result<Response, Error> {
+    pub fn post_withdrawal(&self, withdrawal: WithdrawalRequest) -> Result<Response, Error> {
         const PATH: &str = "account/withdrawals/";
         let resp = self.post::<Response, WithdrawalRequest>(PATH, withdrawal);
         match resp {

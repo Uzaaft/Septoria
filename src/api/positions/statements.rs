@@ -39,12 +39,11 @@ impl Client {
     ) -> Result<StatementPagination, Error> {
         const PATH: &str = "positions/statements";
 
-        let mut query : Vec<String>= vec![];
+        let mut query: Vec<String> = vec![];
         Client::get_query_string(query_tuple!(limit), &mut query);
         Client::get_query_string(query_tuple!(page), &mut query);
 
-        let resp = self.get_with_query::<StatementPagination,
-        Vec<String>>(PATH, query);
+        let resp = self.get_with_query::<StatementPagination, Vec<String>>(PATH, query);
         match resp {
             Ok(r) => Ok(r),
             Err(e) => Err(e),
@@ -56,7 +55,7 @@ impl Client {
 mod tests {
     use std::env;
 
-    use crate::{client};
+    use crate::client;
 
     #[test]
     fn test_get_statement() {

@@ -3,5 +3,5 @@
 macro_rules! query_tuple {
     ($var: ident) => {
         (stringify!($var), $var)
-    }
+    };
 }

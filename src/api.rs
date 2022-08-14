@@ -46,11 +46,10 @@ pub struct PaginationResponse<T> {
     /// The total number of results available.
     pub total: i64,
     /// The current page number
-    pub page: i32,
+    pub page: i64,
     /// The total number of pages in the response.
-    pub pages: i32,
+    pub pages: i64,
 }
-
 
 /// General response struct
 #[derive(Deserialize, Debug)]
@@ -63,7 +62,6 @@ pub struct Response {
     /// Status of the request. Returns 'ok' if successful
     pub status: String,
 }
-
 
 /// Generic response struct
 #[derive(Deserialize, Debug)]
@@ -152,6 +150,7 @@ mod tests {
 
     #[test]
     fn test_get_query_string() {
+        let mut query: Vec<String> = Vec::new();
         let limit = 1;
         let page = 2;
         Client::get_query_string(query_tuple!(limit), &mut query);
@@ -160,4 +159,3 @@ mod tests {
         assert_eq!(query[1], "page=2");
     }
 }
-
