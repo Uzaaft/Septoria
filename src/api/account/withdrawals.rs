@@ -1,28 +1,35 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{client::Client, error::Error};
+use crate::api::Response;
 
-// TODO: This and the struct above could perhaps be merged into one...?
-#[derive(Deserialize, Debug)]
-pub struct WithdrawalResponse {
-    pub time: String,
-    pub mode: String,
-    pub status: String,
-}
 
+/// Struct for the Withdrawal Request
 #[derive(Serialize, Deserialize, Debug)]
 pub struct WithdrawalRequest {
+    /// Amount to withdraw
     amount: usize,
+    /// PIN to use for withdrawal
     pin: i64,
+    /// You can set your own unique idempotency key to prevent duplicate operations.
+    /// Subsequent requests with the same idempotency key will then not go through and throw an error message.
+    /// This means you cannot make the same withdrawal twice.
     idempotency: Option<String>,
 }
 
+///
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Withdrawal {
+    /// A unique Identification Number of your withdrawal
     pub id: String,
+    /// The amount of the withdrawal
     pub amount: i64,
+    /// Timestamp at which you created the withdrawal
     pub created_at: String,
+    /// Timestamp at which the withdrawal was processed by our partner bank
     pub date: Option<String>,
+    /// Your own unique idempotency key that you specified in your POST request to prevent
+    /// duplicate withdrawals.
     pub idempotency: Option<String>,
 }
 
@@ -34,9 +41,9 @@ impl Client {
         &self,
         _limit: Option<i32>,
         _page: Option<i32>,
-    ) -> Result<WithdrawalResponse, Error> {
+    ) -> Result<Response, Error> {
         const PATH: &str = "account/withdrawals/";
-        let resp = self.get::<WithdrawalResponse>(PATH);
+        let resp = self.get::<Response>(PATH);
         match resp {
             Ok(r) => Ok(r),
             Err(e) => Err(e),
@@ -48,9 +55,9 @@ impl Client {
     pub fn post_withdrawal(
         &self,
         withdrawal: WithdrawalRequest,
-    ) -> Result<WithdrawalResponse, Error> {
+    ) -> Result<Response, Error> {
         const PATH: &str = "account/withdrawals/";
-        let resp = self.post::<WithdrawalResponse, WithdrawalRequest>(PATH, withdrawal);
+        let resp = self.post::<Response, WithdrawalRequest>(PATH, withdrawal);
         match resp {
             Ok(r) => Ok(r),
             Err(e) => Err(e),

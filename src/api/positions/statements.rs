@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use crate::api::PaginationResponse;
 use crate::client::Client;
 use crate::error::Error;
+use crate::query_tuple;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Statement {
@@ -38,16 +39,12 @@ impl Client {
     ) -> Result<StatementPagination, Error> {
         const PATH: &str = "positions/statements";
 
-        let mut query = vec![];
+        let mut query : Vec<String>= vec![];
+        Client::get_query_string(query_tuple!(limit), &mut query);
+        Client::get_query_string(query_tuple!(page), &mut query);
 
-        if let Some(limit) = limit {
-            if let Ok(query_string) =
-                serde_urlencoded::to_string(&vec![("limit", limit.to_string())])
-            {
-                query.push(query_string);
-            }
-        }
-        let resp = self.get::<StatementPagination>(PATH);
+        let resp = self.get_with_query::<StatementPagination,
+        Vec<String>>(PATH, query);
         match resp {
             Ok(r) => Ok(r),
             Err(e) => Err(e),
@@ -59,15 +56,15 @@ impl Client {
 mod tests {
     use std::env;
 
-    use crate::client;
+    use crate::{client};
 
     #[test]
     fn test_get_statement() {
         dotenv::dotenv().unwrap();
         let api_key = env::var("LEMON_MARKET_TRADING_API_KEY").unwrap();
         let client = client::Client::paper_client(&api_key);
+        let page = 1;
         let statements = client.get_statements(None, None).unwrap();
-        dbg!(&statements);
         assert_eq!(statements.status, "ok");
     }
 }

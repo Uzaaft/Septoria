@@ -20,6 +20,9 @@ pub struct PositionPerformance {
 type PositionPerformancePagination = PaginationResponse<PositionPerformance>;
 
 impl Client {
+    /// Get an overview of your position performances
+    ///  Using this endpoint, you can retrieve when positions were opened and closed,
+    /// potential profits/losses, or related fees for position orders.
     pub fn get_positions_performance(&self) -> Result<PositionPerformancePagination, Error> {
         const PATH: &str = "positions/performance";
         let resp = self.get::<PositionPerformancePagination>(PATH);

@@ -1,3 +1,8 @@
+//! Generic functions and structs for the API
+//!
+//! This module contains the generic functions and structs for the API.
+//! These are used by the `Client`, and public for the whole crate
+
 use std::fmt::Debug;
 
 use reqwest::StatusCode;
@@ -6,20 +11,73 @@ use serde::{Deserialize, Serialize};
 
 use crate::{client::Client, error::Error};
 
+/// Module for interacting with the account related endpoints
 pub mod account;
 mod positions;
 
+/// Generic struct for Endpoints that returns pagination information alongside data
 #[derive(Deserialize, Serialize, Debug)]
+/// `PaginationResponse` is a struct that contains a `time` field of type `String`, a `status` field of
+/// type `String`, a `mode` field of type `String`, a `results` field of type `Option<Vec<T>>`, a
+/// `previous` field of type `Option<String>`, a `next` field of type `Option<String>`, a `total` field
+/// of type `i64`, a `page` field of type `i32`, and a `pages` field of type `i32`.
+///
+/// Properties:
+///
+/// * `time`: The time the request was made.
+/// * `status`: The status of the request.
+/// * `mode`: The mode of the request.
+/// * `results`: The actual results of the query.
+/// * `previous`: The URL of the previous page of results.
+/// * `next`: The URL for the next page of results.
+/// * `total`: The total number of results available.
+/// * `page`: The current page number
+/// * `pages`: The total number of pages in the response.
 pub struct PaginationResponse<T> {
+    /// The time the request was made.
     pub time: String,
+    /// The status of the request.
     pub status: String,
+    /// The mode of the request. Can be paper, live, or market
     pub mode: String,
+    /// The actual results of the query. Depends upon the given generics
     pub results: Option<Vec<T>>,
+    /// The URL of the previous page of results.
     pub previous: Option<String>,
+    /// The URL for the next page of results.
     pub next: Option<String>,
+    /// The total number of results available.
     pub total: i64,
+    /// The current page number
     pub page: i32,
+    /// The total number of pages in the response.
     pub pages: i32,
+}
+
+
+/// General response struct
+#[derive(Deserialize, Debug)]
+pub struct Response {
+    /// Timestamp of your request
+    pub time: String,
+    /// Environment the request was placed in: "paper" or "money"
+    // TODO: Make this an enum
+    pub mode: String,
+    /// Status of the request. Returns 'ok' if successful
+    pub status: String,
+}
+
+
+/// Generic response struct
+#[derive(Deserialize, Debug)]
+pub(crate) struct GenericResponse<T> {
+    /// Timestamp of your request
+    pub time: String,
+    /// Environment the request was placed in: "paper" or "money"
+    // TODO: Make this an enum
+    pub mode: String,
+    /// Status of the request.
+    pub status: T,
 }
 
 impl Client {
@@ -69,8 +127,7 @@ impl Client {
         Ok(json)
     }
 
-    /// Private utility function to handle responses and errors
-    // TODO: Actually use this in the code
+    /// Crate wide function to handle responses and errors
     pub(crate) fn response_handler<T: DeserializeOwned>(
         &self,
         response: reqwest::blocking::Response,
@@ -83,10 +140,27 @@ impl Client {
             }
         }
     }
-    /// Private functions to handle query params
-    pub fn get_query_string<Q: Serialize>(query: Q, query_vector: &mut Vec<String>) {
+    /// Crate wide function to handle query params
+    pub(crate) fn get_query_string<Q: Serialize>(query: Q, query_vector: &mut Vec<String>) {
         if let Ok(query_string) = serde_urlencoded::to_string(&query) {
             query_vector.push(query_string);
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::*;
+
+    #[test]
+    fn test_get_query_string() {
+        let limit = 1;
+        let page = 2;
+        Client::get_query_string(query_tuple!(limit), &mut query);
+        Client::get_query_string(query_tuple!(page), &mut query);
+        assert_eq!(query[0], "limit=1");
+        assert_eq!(query[1], "page=2");
+    }
+}
+
