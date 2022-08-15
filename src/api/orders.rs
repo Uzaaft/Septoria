@@ -1,4 +1,6 @@
 use serde::{Deserialize, Serialize};
+use chrono::prelude::*;
+
 
 use crate::{client::Client, error::Error};
 
@@ -30,7 +32,7 @@ pub struct OrderPlacingResponse<T> {
 #[derive(Serialize, Deserialize, Debug)]
 // The struct for placing an order - the results response of the request
 pub struct OrderResults {
-    pub created_at: String,
+    pub created_at: DateTime<Utc>,
     pub id: String,
     pub status: String,
     pub regulatory_information: Option<RegulatoryInformation>,
