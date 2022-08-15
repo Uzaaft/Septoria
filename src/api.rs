@@ -14,6 +14,7 @@ use crate::{client::Client, error::Error};
 /// Module for interacting with the account related endpoints
 pub mod account;
 mod positions;
+mod orders;
 
 /// Generic struct for Endpoints that returns pagination information alongside data
 ///
