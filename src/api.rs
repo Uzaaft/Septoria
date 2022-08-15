@@ -13,6 +13,7 @@ use crate::{client::Client, error::Error};
 
 /// Module for interacting with the account related endpoints
 pub mod account;
+mod positions;
 
 impl Client {
     /// Generic get request
