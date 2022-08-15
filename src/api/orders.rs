@@ -70,7 +70,8 @@ pub struct RegulatoryInformation {
     pub estimated_holding_duration_years: Option<String>,
     pub estimated_yield_reduction_total: Option<i64>,
     pub estimated_yield_reduction_total_pct: Option<String>,
-    pub KIID: Option<String>,
+    #[serde(rename="KIID")]
+    pub kiid: Option<String>,
     pub legal_disclaimer: Option<String>
 } 
 
