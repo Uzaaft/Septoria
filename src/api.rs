@@ -10,7 +10,7 @@ use reqwest::StatusCode;
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 
-use crate::{ error::Error};
+use crate::error::Error;
 
 /// Module for interacting with the account related endpoints
 mod market_data;
@@ -91,18 +91,10 @@ pub(crate) trait Requests {
     ) -> Result<T, Error>;
 
     /// Generic post request
-    fn post<T: DeserializeOwned, B: Serialize>(
-        &self,
-        path: &str,
-        body: B,
-    ) -> Result<T, Error>;
+    fn post<T: DeserializeOwned, B: Serialize>(&self, path: &str, body: B) -> Result<T, Error>;
 
     /// Generic delete request
-    fn delete<T: DeserializeOwned>(
-        &self,
-        path: &str,
-        path_param: &str,
-    ) -> Result<T, Error> ;
+    fn delete<T: DeserializeOwned>(&self, path: &str, path_param: &str) -> Result<T, Error>;
 
     /// Crate wide function to handle responses and errors
     fn response_handler<T: DeserializeOwned>(

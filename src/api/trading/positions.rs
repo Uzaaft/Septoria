@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 
 use crate::api::{PaginationResponse, Requests};
-use crate::{ error::Error};
 use crate::client::TradingClient;
+use crate::error::Error;
 
 mod performance;
 mod statements;
@@ -31,9 +31,8 @@ impl TradingClient {
 
 #[cfg(test)]
 mod position_tests {
-    use std::env;
     use crate::client::TradingClient;
-
+    use std::env;
 
     #[test]
     fn test_get_positions() {

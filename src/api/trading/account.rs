@@ -4,9 +4,9 @@ use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 use serde_variant::to_variant_name;
 
-use crate::{error::Error};
 use crate::api::Requests;
 use crate::client::TradingClient;
+use crate::error::Error;
 
 mod documents;
 /// Module for interacting with the withdrawal related endpoints
@@ -166,7 +166,6 @@ impl TradingClient {
 mod test {
     use std::env;
 
-    use crate::*;
     use crate::client::TradingClient;
 
     #[test]

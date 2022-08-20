@@ -2,15 +2,16 @@ use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::api::{GenericResponse, Requests};
-use crate::{api::Response, error::Error};
 use crate::client::TradingClient;
+use crate::{api::Response, error::Error};
 
 #[derive(Serialize, Deserialize, Debug)]
 // The struct for placing an order - body of the post request
 pub struct OrderPlacing {
     pub isin: String,
     pub expires_at: Option<String>,
-    pub side: OrderType, // "buy" or "sell"
+    pub side: OrderType,
+    // "buy" or "sell"
     pub quantity: i64,
     pub venue: Option<String>,
 }
@@ -93,6 +94,7 @@ pub struct RegulatoryInformation {
     pub kiid: Option<String>,
     pub legal_disclaimer: Option<String>,
 }
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ActivateOrder {
     pub id: String,
@@ -112,8 +114,13 @@ impl TradingClient {
 
     /// Activate an order by id
     pub fn activate_order(&self, pin: i64, order_id: &str) -> Result<Response, Error> {
-        let path = format!("orders/{order_id}/activate").as_str();
-        let resp = self.post::<Response, ActivateOrder>(path, ActivateOrder { id: order_id.to_string(), pin }
+        let url = format!("orders/{order_id}/activate");
+        let resp = self.post::<Response, ActivateOrder>(
+            url.as_str(),
+            ActivateOrder {
+                id: order_id.to_string(),
+                pin,
+            },
         );
         match resp {
             Ok(r) => Ok(r),
@@ -138,6 +145,7 @@ mod test {
     use std::env;
 
     use crate::*;
+
     #[test]
     fn test_placing_and_activating_an_order() {
         dotenv::dotenv().unwrap();
@@ -152,9 +160,11 @@ mod test {
             venue: Some("XMUN".to_string()),
         };
         let resp = client.post_order(body).unwrap();
+        dbg!(&resp);
         assert_eq!(resp.status, "ok");
-        let order_id = resp.results.unwrap().id.as_str();
-        let resp = client.activate_order(1234, order_id).unwrap();
+        let resp = client
+            .activate_order(1234, resp.results.unwrap().id.as_str())
+            .unwrap();
         dbg!(&resp);
         assert_eq!(resp.status, "ok");
     }

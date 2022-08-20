@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
 
 use crate::api::{PaginationResponse, Requests};
-use crate::{error::Error};
-use chrono::prelude::*;
 use crate::data_client::DataClient;
+use crate::error::Error;
+use chrono::prelude::*;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct OpeningHours {
@@ -37,10 +37,9 @@ impl DataClient {
 
 #[cfg(test)]
 mod tests {
-    use crate::*;
-    use std::env;
-    use serde_json::error::Category::Data;
     use crate::data_client::DataClient;
+
+    use std::env;
 
     #[test]
     fn test_get_venues() {

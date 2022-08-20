@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::api::{PaginationResponse, Requests};
-use crate::client::{ TradingClient};
+use crate::client::TradingClient;
 use crate::error::Error;
 use crate::query_tuple;
 use chrono::prelude::*;
@@ -57,7 +57,6 @@ impl TradingClient {
 mod tests {
     use std::env;
 
-    use crate::client;
     use crate::client::TradingClient;
 
     #[test]
@@ -65,7 +64,7 @@ mod tests {
         dotenv::dotenv().unwrap();
         let api_key = env::var("LEMON_MARKET_TRADING_API_KEY").unwrap();
         let client = TradingClient::paper_client(&api_key);
-        let page = 1;
+        let _page = 1;
         let statements = client.get_statements(None, None).unwrap();
         assert_eq!(statements.status.unwrap(), "ok");
     }

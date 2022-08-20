@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{data_client::DataClient, error::Error};
-use chrono::prelude::*;
 use crate::api::Requests;
 use crate::client::TradingClient;
+use crate::{data_client::DataClient, error::Error, query_tuple};
+use chrono::prelude::*;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct InstrumentResponse {
@@ -40,9 +40,21 @@ pub struct InstrumentInfo {
 
 impl DataClient {
     /// Get a list of instruments.
-    pub fn get_instruments(&self) -> Result<InstrumentResponse, Error> {
+    pub fn get_instruments(
+        &self,
+        isin: Option<String>,
+        search: Option<String>,
+        instrument_type: Option<String>,
+    ) -> Result<InstrumentResponse, Error> {
         const PATH: &str = "instruments/";
-        let resp = self.get::<InstrumentResponse>(PATH);
+
+        // Build query
+        let mut query: Vec<String> = vec![];
+        TradingClient::get_query_string(query_tuple!(isin), &mut query);
+        TradingClient::get_query_string(query_tuple!(search), &mut query);
+        TradingClient::get_query_string(query_tuple!(instrument_type), &mut query);
+
+        let resp = self.get_with_query::<InstrumentResponse, Vec<String>>(PATH, query);
         match resp {
             Ok(r) => Ok(r),
             Err(e) => Err(e),
@@ -52,17 +64,19 @@ impl DataClient {
 
 #[cfg(test)]
 mod tests {
-    use crate::*;
-    use std::env;
-    use chrono::Month::April;
     use crate::data_client::DataClient;
+
+    use std::env;
 
     #[test]
     fn test_get_instruments() {
         dotenv::dotenv().unwrap();
         let api_key = env::var("LEMON_MARKET_DATA_API_KEY").unwrap();
         let client = DataClient::new(api_key);
-        let instruments = client.get_instruments().unwrap();
+        let stock_name = "Aker";
+        let instruments = client
+            .get_instruments(None, Some(stock_name.to_string()), None)
+            .unwrap();
         dbg!(instruments);
     }
 }

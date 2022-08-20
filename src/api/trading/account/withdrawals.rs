@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
 
 use crate::api::{Requests, Response};
-use crate::{ error::Error};
-use chrono::prelude::*;
 use crate::client::TradingClient;
+use crate::error::Error;
+use chrono::prelude::*;
 
 /// Struct for the Withdrawal Request
 #[derive(Serialize, Deserialize, Debug)]
@@ -66,8 +66,6 @@ impl TradingClient {
 #[cfg(test)]
 mod tests {
     use std::env;
-
-    use crate::*;
 
     use super::*;
 

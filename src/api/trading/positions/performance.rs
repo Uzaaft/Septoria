@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
 
 use crate::api::{PaginationResponse, Requests};
+use crate::client::TradingClient;
 use crate::error::Error;
 use chrono::prelude::*;
-use crate::client::TradingClient;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct PositionPerformance {
@@ -37,7 +37,6 @@ impl TradingClient {
 mod tests {
     use std::env;
 
-    use crate::client;
     use crate::client::TradingClient;
 
     #[test]

@@ -1,11 +1,10 @@
-use std::fmt::Debug;
-use reqwest::Url;
-use serde::de::DeserializeOwned;
-use serde::Serialize;
 use crate::api::Requests;
 use crate::error::Error;
 use crate::util::build_reqwest_client;
-
+use reqwest::Url;
+use serde::de::DeserializeOwned;
+use serde::Serialize;
+use std::fmt::Debug;
 
 /// Paper endpoint url
 static PAPER_ENDPOINT: &str = "https://paper-trading.lemon.markets/v1/";
@@ -44,11 +43,7 @@ impl Requests for TradingClient {
         Ok(json)
     }
     /// Generic post request
-    fn post<T: DeserializeOwned, B: Serialize>(
-        &self,
-        path: &str,
-        body: B,
-    ) -> Result<T, Error> {
+    fn post<T: DeserializeOwned, B: Serialize>(&self, path: &str, body: B) -> Result<T, Error> {
         let url = format!("{}/{}", self.base_url, path);
         let body_string = serde_json::to_string(&body)?;
         let r = self.client.post(&url).body(body_string).send()?;
@@ -57,11 +52,7 @@ impl Requests for TradingClient {
         Ok(json)
     }
     /// Generic delete request
-    fn delete<T: DeserializeOwned>(
-        &self,
-        path: &str,
-        path_param: &str,
-    ) -> Result<T, Error> {
+    fn delete<T: DeserializeOwned>(&self, path: &str, path_param: &str) -> Result<T, Error> {
         let url = format!("{}/{}/{}", self.base_url, path, path_param);
         let r = self.client.delete(&url).send()?;
         // .json::<T>()?;
@@ -70,13 +61,16 @@ impl Requests for TradingClient {
     }
 }
 
-impl TradingClient{
-
+impl TradingClient {
     /// Create a new TradingClient
-    pub fn new(api_key: String, endpoint: &str) -> Self {
+    pub fn new(api_key: String, _endpoint: &str) -> Self {
         let base_url = Url::parse(PAPER_ENDPOINT).unwrap();
         let client = build_reqwest_client(&api_key);
-        Self { api_key, base_url, client }
+        Self {
+            api_key,
+            base_url,
+            client,
+        }
     }
 
     /// Create a new client for paper trading with the given API key.

@@ -1,9 +1,9 @@
-use std::fmt::Debug;
-use reqwest::{StatusCode, Url};
-use serde::de::DeserializeOwned;
-use serde::Serialize;
 use crate::api::Requests;
 use crate::error::Error;
+use reqwest::Url;
+use serde::de::DeserializeOwned;
+use serde::Serialize;
+use std::fmt::Debug;
 
 use crate::util::build_reqwest_client;
 
@@ -20,7 +20,7 @@ pub struct DataClient {
     pub(crate) client: reqwest::blocking::Client,
 }
 
-impl DataClient{
+impl DataClient {
     /// Create a new data client.
     pub fn new(api_key: String) -> Self {
         let client = build_reqwest_client(&api_key);
@@ -52,11 +52,7 @@ impl Requests for DataClient {
         Ok(json)
     }
     /// Generic post request
-    fn post<T: DeserializeOwned, B: Serialize>(
-        &self,
-        path: &str,
-        body: B,
-    ) -> Result<T, Error> {
+    fn post<T: DeserializeOwned, B: Serialize>(&self, path: &str, body: B) -> Result<T, Error> {
         let url = format!("{}/{}", self.base_url, path);
         let body_string = serde_json::to_string(&body)?;
         let r = self.client.post(&url).body(body_string).send()?;
@@ -65,11 +61,7 @@ impl Requests for DataClient {
         Ok(json)
     }
     /// Generic delete request
-    fn delete<T: DeserializeOwned>(
-        &self,
-        path: &str,
-        path_param: &str,
-    ) -> Result<T, Error> {
+    fn delete<T: DeserializeOwned>(&self, path: &str, path_param: &str) -> Result<T, Error> {
         let url = format!("{}/{}/{}", self.base_url, path, path_param);
         let r = self.client.delete(&url).send()?;
         let json = self.response_handler::<T>(r)?;
