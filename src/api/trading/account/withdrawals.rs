@@ -1,8 +1,9 @@
 use serde::{Deserialize, Serialize};
 
-use crate::api::Response;
-use crate::{client::Client, error::Error};
+use crate::api::{Requests, Response};
+use crate::{ error::Error};
 use chrono::prelude::*;
+use crate::client::TradingClient;
 
 /// Struct for the Withdrawal Request
 #[derive(Serialize, Deserialize, Debug)]
@@ -33,7 +34,7 @@ pub struct Withdrawal {
     pub idempotency: Option<String>,
 }
 
-impl Client {
+impl TradingClient {
     /// Get account withdrawls
     // TODO: Add support for pagination
     // TODO: Add docs for params
@@ -74,7 +75,7 @@ mod tests {
     fn test_get_account_withdrawls() {
         dotenv::dotenv().unwrap();
         let api_key = env::var("LEMON_MARKET_TRADING_API_KEY").unwrap();
-        let client = client::Client::paper_client(&api_key);
+        let client = TradingClient::paper_client(&api_key);
         let resp = client.get_account_withdrawls(None, None).unwrap();
         dbg!(&resp);
         assert_eq!(resp.status, "ok");
@@ -85,7 +86,7 @@ mod tests {
     fn test_post_withdrawal() {
         dotenv::dotenv().unwrap();
         let api_key = env::var("LEMON_MARKET_TRADING_API_KEY").unwrap();
-        let client = client::Client::paper_client(&api_key);
+        let client = TradingClient::paper_client(&api_key);
         let withdrawal = WithdrawalRequest {
             amount: 100, // 0.01 EUR
             pin: 1234,

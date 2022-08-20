@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
-use crate::api::PaginationResponse;
-use crate::client::Client;
+use crate::api::{PaginationResponse, Requests};
+use crate::client::{ TradingClient};
 use crate::error::Error;
 use crate::query_tuple;
 use chrono::prelude::*;
@@ -32,7 +32,7 @@ pub enum StatementType {
 
 type StatementPagination = PaginationResponse<Statement>;
 
-impl Client {
+impl TradingClient {
     /// Get all change events happening to your positions.
     pub fn get_statements(
         &self,
@@ -42,8 +42,8 @@ impl Client {
         const PATH: &str = "positions/statements";
 
         let mut query: Vec<String> = vec![];
-        Client::get_query_string(query_tuple!(limit), &mut query);
-        Client::get_query_string(query_tuple!(page), &mut query);
+        TradingClient::get_query_string(query_tuple!(limit), &mut query);
+        TradingClient::get_query_string(query_tuple!(page), &mut query);
 
         let resp = self.get_with_query::<StatementPagination, Vec<String>>(PATH, query);
         match resp {
@@ -58,12 +58,13 @@ mod tests {
     use std::env;
 
     use crate::client;
+    use crate::client::TradingClient;
 
     #[test]
     fn test_get_statement() {
         dotenv::dotenv().unwrap();
         let api_key = env::var("LEMON_MARKET_TRADING_API_KEY").unwrap();
-        let client = client::Client::paper_client(&api_key);
+        let client = TradingClient::paper_client(&api_key);
         let page = 1;
         let statements = client.get_statements(None, None).unwrap();
         assert_eq!(statements.status.unwrap(), "ok");

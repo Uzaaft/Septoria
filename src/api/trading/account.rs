@@ -4,7 +4,9 @@ use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 use serde_variant::to_variant_name;
 
-use crate::{client::Client, error::Error};
+use crate::{error::Error};
+use crate::api::Requests;
+use crate::client::TradingClient;
 
 mod documents;
 /// Module for interacting with the withdrawal related endpoints
@@ -148,7 +150,7 @@ impl fmt::Display for Sorting {
     }
 }
 
-impl Client {
+impl TradingClient {
     /// Get account information
     pub fn get_account_information(&self) -> Result<AccountInformation<AccountResults>, Error> {
         const PATH: &str = "account";
@@ -165,12 +167,13 @@ mod test {
     use std::env;
 
     use crate::*;
+    use crate::client::TradingClient;
 
     #[test]
     fn test_get_account_information() {
         dotenv::dotenv().unwrap();
         let api_key = env::var("LEMON_MARKET_TRADING_API_KEY").unwrap();
-        let client = client::Client::paper_client(&api_key);
+        let client = TradingClient::paper_client(&api_key);
         let resp = client.get_account_information().unwrap();
         assert_eq!(resp.status, "ok");
     }

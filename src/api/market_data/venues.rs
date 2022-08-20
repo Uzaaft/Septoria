@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
 
-use crate::api::{PaginationResponse, Response};
-use crate::{client::Client, error::Error};
+use crate::api::{PaginationResponse, Requests};
+use crate::{error::Error};
 use chrono::prelude::*;
-
+use crate::data_client::DataClient;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct OpeningHours {
@@ -23,7 +23,7 @@ pub struct VenueData {
 }
 type VenueDataPagination = PaginationResponse<VenueData>;
 
-impl Client{
+impl DataClient {
     /// Get a list of venues.
     pub fn get_venues(&self) -> Result<VenueDataPagination, Error> {
         const PATH: &str = "venues/";
@@ -35,16 +35,18 @@ impl Client{
     }
 }
 
-
 #[cfg(test)]
-mod tests{
-    use std::env;
+mod tests {
     use crate::*;
+    use std::env;
+    use serde_json::error::Category::Data;
+    use crate::data_client::DataClient;
+
     #[test]
-    fn test_get_venues(){
+    fn test_get_venues() {
         dotenv::dotenv().unwrap();
         let api_key = env::var("LEMON_MARKET_DATA_API_KEY").unwrap();
-        let client = client::Client::data_client(&api_key);
+        let client = DataClient::new(api_key);
         let venues = client.get_venues().unwrap();
         dbg!(venues);
     }

@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 use chrono::prelude::*;
+use serde::{Deserialize, Serialize};
 
-
-use crate::{client::Client, error::Error};
+use crate::api::{GenericResponse, Requests};
+use crate::{api::Response, error::Error};
+use crate::client::TradingClient;
 
 #[derive(Serialize, Deserialize, Debug)]
 // The struct for placing an order - body of the post request
@@ -15,9 +16,10 @@ pub struct OrderPlacing {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "lowercase")]
 pub enum OrderType {
-    buy,
-    sell
+    Buy,
+    Sell,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -71,7 +73,7 @@ pub struct OrderResults {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct RegulatoryInformation {
     pub costs_entry: Option<i64>,
-    pub costs_entry_pct : Option<String>,
+    pub costs_entry_pct: Option<String>,
     pub costs_running: Option<i64>,
     pub costs_running_pct: Option<String>,
     pub costs_product: Option<i64>,
@@ -87,21 +89,42 @@ pub struct RegulatoryInformation {
     pub estimated_holding_duration_years: Option<String>,
     pub estimated_yield_reduction_total: Option<i64>,
     pub estimated_yield_reduction_total_pct: Option<String>,
-    #[serde(rename="KIID")]
+    #[serde(rename = "KIID")]
     pub kiid: Option<String>,
-    pub legal_disclaimer: Option<String>
-} 
+    pub legal_disclaimer: Option<String>,
+}
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ActivateOrder {
+    pub id: String,
+    pub pin: i64,
+}
 
-
-
-impl Client {
+impl TradingClient {
     /// Post and create a new order.
-    pub fn post_an_order(
-        &self,
-        _body: OrderPlacing
-    ) -> Result<OrderPlacingResponse<OrderResults>, Error> {
+    pub fn post_order(&self, _body: OrderPlacing) -> Result<GenericResponse<OrderResults>, Error> {
         const PATH: &str = "orders/";
-        let resp = self.post::<OrderPlacingResponse<OrderResults>, _>(PATH, _body);
+        let resp = self.post::<GenericResponse<OrderResults>, _>(PATH, _body);
+        match resp {
+            Ok(r) => Ok(r),
+            Err(e) => Err(e),
+        }
+    }
+
+    /// Activate an order by id
+    pub fn activate_order(&self, pin: i64, order_id: &str) -> Result<Response, Error> {
+        let path = format!("orders/{order_id}/activate").as_str();
+        let resp = self.post::<Response, ActivateOrder>(path, ActivateOrder { id: order_id.to_string(), pin }
+        );
+        match resp {
+            Ok(r) => Ok(r),
+            Err(e) => Err(e),
+        }
+    }
+
+    /// Delete an order by id
+    pub fn delete_order(&self, order_id: &str) -> Result<Response, Error> {
+        const PATH: &str = "orders/{order_id}/";
+        let resp = self.delete::<Response>(PATH, order_id);
         match resp {
             Ok(r) => Ok(r),
             Err(e) => Err(e),
@@ -109,28 +132,30 @@ impl Client {
     }
 }
 
-
 #[cfg(test)]
 mod test {
-    use std::env;
     use chrono::prelude::*;
-
+    use std::env;
 
     use crate::*;
     #[test]
-    fn test_placing_an_order() {
+    fn test_placing_and_activating_an_order() {
         dotenv::dotenv().unwrap();
         let local: DateTime<Local> = Local::now();
         let api_key = env::var("LEMON_MARKET_TRADING_API_KEY").unwrap();
-        let client = client::Client::paper_client(&api_key);
+        let client = client::TradingClient::paper_client(&api_key);
         let body = super::OrderPlacing {
             isin: "US0378331005".to_string(),
-            expires_at: Some(local.format("%Y-%m-%d").to_string()), 
-            side: super::OrderType::buy,
+            expires_at: Some(local.format("%Y-%m-%d").to_string()),
+            side: super::OrderType::Buy,
             quantity: 1,
             venue: Some("XMUN".to_string()),
         };
-        let resp = client.post_an_order(body).unwrap();
+        let resp = client.post_order(body).unwrap();
+        assert_eq!(resp.status, "ok");
+        let order_id = resp.results.unwrap().id.as_str();
+        let resp = client.activate_order(1234, order_id).unwrap();
+        dbg!(&resp);
         assert_eq!(resp.status, "ok");
     }
 }
