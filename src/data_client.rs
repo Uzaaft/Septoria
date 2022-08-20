@@ -1,20 +1,17 @@
 use std::fmt::Debug;
-use reqwest::Url;
+use reqwest::{StatusCode, Url};
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 use crate::api::Requests;
 use crate::error::Error;
+
 use crate::util::build_reqwest_client;
 
-
-/// Paper endpoint url
-static PAPER_ENDPOINT: &str = "https://paper-trading.lemon.markets/v1/";
-/// Money endpoint url
-static MONEY_ENDPOINT: &str = "https://trading.lemon.markets/v1/";
+static DATA_ENDPOINT: &str = "https://data.lemon.markets/v1/";
 
 #[derive(Debug)]
-/// The client for the Lemon API.
-pub struct TradingClient {
+/// The data client for the Lemon API.
+pub struct DataClient {
     /// The API key.
     pub api_key: String,
     /// The base url for the API
@@ -23,8 +20,19 @@ pub struct TradingClient {
     pub(crate) client: reqwest::blocking::Client,
 }
 
-/// API methods for the Client
-impl Requests for TradingClient {
+impl DataClient{
+    /// Create a new data client.
+    pub fn new(api_key: String) -> Self {
+        let client = build_reqwest_client(&api_key);
+        Self {
+            api_key,
+            base_url: Url::parse(DATA_ENDPOINT).unwrap(),
+            client,
+        }
+    }
+}
+
+impl Requests for DataClient {
     /// Generic get request
     fn get<T: DeserializeOwned + Debug>(&self, path: &str) -> Result<T, Error> {
         let url = format!("{}/{}", self.base_url, path);
@@ -64,28 +72,7 @@ impl Requests for TradingClient {
     ) -> Result<T, Error> {
         let url = format!("{}/{}/{}", self.base_url, path, path_param);
         let r = self.client.delete(&url).send()?;
-        // .json::<T>()?;
         let json = self.response_handler::<T>(r)?;
         Ok(json)
-    }
-}
-
-impl TradingClient{
-
-    /// Create a new TradingClient
-    pub fn new(api_key: String, endpoint: &str) -> Self {
-        let base_url = Url::parse(PAPER_ENDPOINT).unwrap();
-        let client = build_reqwest_client(&api_key);
-        Self { api_key, base_url, client }
-    }
-
-    /// Create a new client for paper trading with the given API key.
-    pub fn paper_client(api_key: &str) -> Self {
-        TradingClient::new(api_key.to_string(), PAPER_ENDPOINT)
-    }
-
-    /// Create a new client for live trading with the given API key.
-    pub fn live_client(api_key: String) -> Self {
-        TradingClient::new(api_key, MONEY_ENDPOINT)
     }
 }

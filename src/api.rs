@@ -10,7 +10,7 @@ use reqwest::StatusCode;
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 
-use crate::{client::Client, error::Error};
+use crate::{ error::Error};
 
 /// Module for interacting with the account related endpoints
 mod market_data;
@@ -67,66 +67,45 @@ pub struct Response {
 
 /// Generic response struct
 #[derive(Deserialize, Debug)]
-pub(crate) struct GenericResponse<T> {
+pub struct GenericResponse<T> {
     /// Timestamp of your request
     pub time: DateTime<Utc>,
     /// Environment the request was placed in: "paper" or "money"
     // TODO: Make this an enum
     pub mode: String,
     /// Status of the request.
-    pub status: T,
+    pub status: String,
+    /// The actual results of the query. Depends upon the given generics
+    pub results: Option<T>,
 }
 
-impl Client {
+/// Traits with API methods that are common across all calls
+pub(crate) trait Requests {
     /// Generic get request
-    pub(crate) fn get<T: DeserializeOwned + Debug>(&self, path: &str) -> Result<T, Error> {
-        let url = format!("{}/{}", self.base_url, path);
-        let r = self.client.get(&url).send()?;
-        let json = self.response_handler(r)?;
-        Ok(json)
-    }
-
+    fn get<T: DeserializeOwned + Debug>(&self, path: &str) -> Result<T, Error>;
     /// Generic get request with query parameters
-    pub(crate) fn get_with_query<T: DeserializeOwned + Debug, Q: IntoIterator + Serialize>(
+    fn get_with_query<T: DeserializeOwned + Debug, Q: IntoIterator + Serialize>(
         &self,
         path: &str,
         query: Q,
-    ) -> Result<T, Error> {
-        let url = format!("{}/{}", self.base_url, path);
-        let r = self.client.get(&url).query(&query).send()?;
-        let json = self.response_handler(r)?;
-        Ok(json)
-    }
+    ) -> Result<T, Error>;
 
     /// Generic post request
-    pub(crate) fn post<T: DeserializeOwned, B: Serialize>(
+    fn post<T: DeserializeOwned, B: Serialize>(
         &self,
         path: &str,
         body: B,
-    ) -> Result<T, Error> {
-        let url = format!("{}/{}", self.base_url, path);
-        let body_string = serde_json::to_string(&body)?;
-        let r = self.client.post(&url).body(body_string).send()?;
-        dbg!(&r);
-        let json = self.response_handler(r)?;
-        Ok(json)
-    }
+    ) -> Result<T, Error>;
 
     /// Generic delete request
-    pub(crate) fn delete<T: DeserializeOwned, PP: Serialize>(
+    fn delete<T: DeserializeOwned>(
         &self,
         path: &str,
         path_param: &str,
-    ) -> Result<T, Error> {
-        let url = format!("{}/{}/{}", self.base_url, path, path_param);
-        let r = self.client.delete(&url).send()?;
-        // .json::<T>()?;
-        let json = self.response_handler::<T>(r)?;
-        Ok(json)
-    }
+    ) -> Result<T, Error> ;
 
     /// Crate wide function to handle responses and errors
-    pub(crate) fn response_handler<T: DeserializeOwned>(
+    fn response_handler<T: DeserializeOwned>(
         &self,
         response: reqwest::blocking::Response,
     ) -> Result<T, Error> {
@@ -139,7 +118,7 @@ impl Client {
         }
     }
     /// Crate wide function to handle query params
-    pub(crate) fn get_query_string<Q: Serialize>(query: Q, query_vector: &mut Vec<String>) {
+    fn get_query_string<Q: Serialize>(query: Q, query_vector: &mut Vec<String>) {
         if let Ok(query_string) = serde_urlencoded::to_string(&query) {
             query_vector.push(query_string);
         }
