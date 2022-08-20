@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use crate::api::PaginationResponse;
 use crate::client::Client;
 use crate::error::Error;
+use chrono::prelude::*;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct PositionPerformance {
@@ -13,8 +14,8 @@ pub struct PositionPerformance {
     pub quantity_bought: i64,
     pub quantity_sold: i64,
     pub quantity_open: i64,
-    pub opened_at: Option<String>,
-    pub closed_at: Option<String>,
+    pub opened_at: Option<DateTime<Utc>>,
+    pub closed_at: Option<DateTime<Utc>>,
     pub fees: i64,
 }
 type PositionPerformancePagination = PaginationResponse<PositionPerformance>;
@@ -45,6 +46,6 @@ mod tests {
         let client = client::Client::paper_client(&api_key);
         let positions = client.get_positions_performance().unwrap();
         dbg!(&positions);
-        assert_eq!(positions.status, "ok");
+        assert_eq!(positions.status.unwrap(), "ok");
     }
 }

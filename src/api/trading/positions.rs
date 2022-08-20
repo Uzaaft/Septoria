@@ -44,7 +44,6 @@ mod position_tests {
         let client = client::Client::paper_client(&api_key);
         let client = Client::paper_client(&api_key);
         let positions = client.get_positions().unwrap();
-        dbg!(&positions);
-        assert_eq!(positions.status, "ok");
+        assert_eq!(positions.status.unwrap(), "ok");
     }
 }

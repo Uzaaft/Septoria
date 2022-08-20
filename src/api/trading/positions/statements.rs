@@ -4,6 +4,7 @@ use crate::api::PaginationResponse;
 use crate::client::Client;
 use crate::error::Error;
 use crate::query_tuple;
+use chrono::prelude::*;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Statement {
@@ -15,8 +16,8 @@ pub struct Statement {
     pub quantity: i64,
     pub isin: String,
     pub isin_title: String,
-    pub date: String,
-    pub created_at: String,
+    pub date: NaiveDate,
+    pub created_at: DateTime<Utc>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -28,6 +29,7 @@ pub enum StatementType {
     Import,
     Snx,
 }
+
 type StatementPagination = PaginationResponse<Statement>;
 
 impl Client {
@@ -64,6 +66,6 @@ mod tests {
         let client = client::Client::paper_client(&api_key);
         let page = 1;
         let statements = client.get_statements(None, None).unwrap();
-        assert_eq!(statements.status, "ok");
+        assert_eq!(statements.status.unwrap(), "ok");
     }
 }

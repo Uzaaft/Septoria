@@ -3,6 +3,7 @@
 //! This module contains the generic functions and structs for the API.
 //! These are used by the `Client`, and public for the whole crate
 
+use chrono::prelude::*;
 use std::fmt::Debug;
 
 use reqwest::StatusCode;
@@ -12,9 +13,9 @@ use serde::{Deserialize, Serialize};
 use crate::{client::Client, error::Error};
 
 /// Module for interacting with the account related endpoints
-pub mod account;
-mod positions;
+mod market_data;
 mod orders;
+mod trading;
 
 /// Generic struct for Endpoints that returns pagination information alongside data
 ///
@@ -33,11 +34,11 @@ mod orders;
 
 pub struct PaginationResponse<T> {
     /// The time the request was made.
-    pub time: String,
+    pub time: DateTime<Utc>,
     /// The status of the request.
-    pub status: String,
-    /// The mode of the request. Can be paper, live, or market
-    pub mode: String,
+    pub status: Option<String>,
+    /// The mode of the request. Can be paper, live, or market_data
+    pub mode: Option<String>,
     /// The actual results of the query. Depends upon the given generics
     pub results: Option<Vec<T>>,
     /// The URL of the previous page of results.
@@ -68,7 +69,7 @@ pub struct Response {
 #[derive(Deserialize, Debug)]
 pub(crate) struct GenericResponse<T> {
     /// Timestamp of your request
-    pub time: String,
+    pub time: DateTime<Utc>,
     /// Environment the request was placed in: "paper" or "money"
     // TODO: Make this an enum
     pub mode: String,
@@ -106,6 +107,7 @@ impl Client {
         let url = format!("{}/{}", self.base_url, path);
         let body_string = serde_json::to_string(&body)?;
         let r = self.client.post(&url).body(body_string).send()?;
+        dbg!(&r);
         let json = self.response_handler(r)?;
         Ok(json)
     }

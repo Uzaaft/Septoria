@@ -4,8 +4,6 @@ use reqwest::Url;
 static PAPER_ENDPOINT: &str = "https://paper-trading.lemon.markets/v1/";
 /// Data endpoint url
 static DATA_ENDPOINT: &str = "https://data.lemon.markets/v1/";
-/// Trading endpoint url
-static LIVE_ENDPOINT: &str = "https://trading.lemon.markets/v1/";
 
 #[derive(Debug)]
 /// The client for the Lemon API.
@@ -39,10 +37,6 @@ impl Client {
         Client::new(api_key, DATA_ENDPOINT.to_string())
     }
 
-    /// Create a new client for live trading with the given API key.
-    pub fn live_client(api_key: &str) -> Self {
-        Client::new(api_key, LIVE_ENDPOINT.to_string())
-    }
 }
 
 /// Private function

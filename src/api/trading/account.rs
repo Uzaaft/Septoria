@@ -1,5 +1,6 @@
 use std::fmt;
 
+use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 use serde_variant::to_variant_name;
 
@@ -28,7 +29,7 @@ pub struct AccountInformation<T> {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AccountResults {
     /// Timestamp for when you created your account
-    pub created_at: String,
+    pub created_at: DateTime<Utc>,
     /// Unique Identification number for your account
     pub account_id: String,
     /// Your first name
@@ -110,7 +111,7 @@ pub struct AccountResults {
     /// for more information in the Trading API
     pub amount_estimate_taxes: i64,
     /// Timestamp of live trading account approval
-    pub approved_at: Option<String>,
+    pub approved_at: Option<DateTime<Utc>>,
     /// We offer different subscription plans for trading with lemon.markets.
     /// This endpoint tells you which plan you are currently on - go, investor, trader, or b2b.
     // TODO: Make this an enum
@@ -122,9 +123,9 @@ pub struct AccountResults {
     /// Your tax tax allowance - between 0 and 801 €, as specified in your onboarding process
     pub tax_allowance: Option<i64>,
     /// Relevant start date for your tax allowance (usually 01/01/ of respective year)
-    pub tax_allowance_start: Option<String>,
+    pub tax_allowance_start: Option<DateTime<Utc>>,
     /// Relevant end date for your tax allowance (usually 31/12/ of respective year)
-    pub tax_allowance_end: Option<String>,
+    pub tax_allowance_end: Option<DateTime<Utc>>,
 }
 
 /// Enum for the different ways of sorting the results
