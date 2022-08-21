@@ -24,15 +24,6 @@ pub enum OrderType {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-// The struct for placing an order - the response of the request
-pub struct OrderPlacingResponse<T> {
-    pub time: String,
-    pub status: String,
-    pub mode: String,
-    pub results: Option<T>,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
 // The struct for placing an order - the results response of the request
 pub struct OrderResults {
     /// Timestamp for when you created your order
@@ -101,7 +92,33 @@ pub struct ActivateOrder {
     pub pin: i64,
 }
 
+
+pub enum OrderStatus{ 
+    inactive,
+    activated, 
+    open , 
+    in_progress,
+    canceling,
+    executed,
+    canceled,
+    expired
+}
+
 impl TradingClient {
+
+    /// Fetch the list of existing orders
+    pub fn get_order(&self, id: &str, from: Option<NaiveDate>,
+        to: Option<NaiveDate>,
+        isin: Option<&str>,
+        side: Option<OrderType>,
+        status: Option<OrderStatus>,
+    ) -> Result<OrderResults, Error> {
+        let url = format!("{}/orders/{}", self.base_url, id);
+        let response = self.get_with_query(&url).send()?;
+        let body = response.text()?;
+        let order: OrderResults = serde_json::from_str(&body)?;
+        Ok(order)
+    }
 
 
 
