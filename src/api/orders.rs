@@ -102,8 +102,11 @@ pub struct ActivateOrder {
 }
 
 impl TradingClient {
+
+
+
     /// Post and create a new order.
-    pub fn post_order(&self, _body: OrderPlacing) -> Result<GenericResponse<OrderResults>, Error> {
+    pub fn create_order(&self, _body: OrderPlacing) -> Result<GenericResponse<OrderResults>, Error> {
         const PATH: &str = "orders/";
         let resp = self.post::<GenericResponse<OrderResults>, _>(PATH, _body);
         match resp {
