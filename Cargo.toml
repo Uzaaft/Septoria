@@ -24,4 +24,4 @@ serde_variant = { git = "https://github.com/d-e-s-o/serde_variant", version = "0
 
 
 [dev-dependencies]
-dotenv = "*"
+dotenv = "0.15.0"
