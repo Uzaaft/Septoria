@@ -7,9 +7,9 @@ use serde::Serialize;
 use std::fmt::Debug;
 
 /// Paper endpoint url
-static PAPER_ENDPOINT: &str = "https://paper-trading.lemon.markets/v1/";
+static PAPER_ENDPOINT: &str = "https://paper-trading.lemon.markets/v1";
 /// Money endpoint url
-static MONEY_ENDPOINT: &str = "https://trading.lemon.markets/v1/";
+static MONEY_ENDPOINT: &str = "https://trading.lemon.markets/v1";
 
 #[derive(Debug)]
 /// The client for the Lemon API.
