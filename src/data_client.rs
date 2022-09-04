@@ -49,6 +49,7 @@ impl Requests for DataClient {
         let url = format!("{}/{}", self.base_url, path);
         let r = self.client.get(&url).query(&query).send()?;
         let json = self.response_handler(r)?;
+        dbg!(&json);
         Ok(json)
     }
     /// Generic post request
@@ -56,7 +57,6 @@ impl Requests for DataClient {
         let url = format!("{}/{}", self.base_url, path);
         let body_string = serde_json::to_string(&body)?;
         let r = self.client.post(&url).body(body_string).send()?;
-        dbg!(&r);
         let json = self.response_handler(r)?;
         Ok(json)
     }

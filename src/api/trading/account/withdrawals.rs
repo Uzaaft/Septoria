@@ -75,7 +75,6 @@ mod tests {
         let api_key = env::var("LEMON_MARKET_TRADING_API_KEY").unwrap();
         let client = TradingClient::paper_client(&api_key);
         let resp = client.get_account_withdrawls(None, None).unwrap();
-        dbg!(&resp);
         assert_eq!(resp.status, "ok");
     }
 

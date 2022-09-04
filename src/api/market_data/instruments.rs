@@ -67,6 +67,5 @@ mod tests {
         let instruments = client
             .get_instruments(None, Some(stock_name.to_string()), None)
             .unwrap();
-        dbg!(instruments);
     }
 }

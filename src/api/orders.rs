@@ -108,8 +108,8 @@ pub struct ActivateOrder {
 impl TradingClient {
 
     /// Get orders
-    pub fn get_order(&self, id: Option<String>) -> Result<Response<OrderResults>, Error> {
-        let url = format!("{}/orders/{}", self.base_url, id);
+    pub fn get_order(&self, id: Option<String>) -> Result<GenericResponse<OrderResults>, Error> {
+        let url = format!("{}/orders/{}", self.base_url, id.unwrap_or_default());
         let response = self.client.get(&url).send()?;
         let body = response.text()?;
         let order = serde_json::from_str(&body)?;
@@ -176,12 +176,10 @@ mod test {
             venue: Some("XMUN".to_string()),
         };
         let resp = client.post_order(body).unwrap();
-        dbg!(&resp);
         assert_eq!(resp.status, "ok");
         let resp = client
             .activate_order(1234, resp.results.unwrap().id.as_str())
             .unwrap();
-        dbg!(&resp);
         assert_eq!(resp.status, "ok");
     }
 }

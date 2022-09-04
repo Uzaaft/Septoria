@@ -108,7 +108,6 @@ mod document_tests{
         let resp = client
             .get_bank_statements(None, None, None, None, None)
             .unwrap();
-        dbg!(&resp);
     }
 }
 */

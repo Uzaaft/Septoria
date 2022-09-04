@@ -45,7 +45,6 @@ mod tests {
         let api_key = env::var("LEMON_MARKET_TRADING_API_KEY").unwrap();
         let client = TradingClient::paper_client(&api_key);
         let positions = client.get_positions_performance().unwrap();
-        dbg!(&positions);
         assert_eq!(positions.status.unwrap(), "ok");
     }
 }

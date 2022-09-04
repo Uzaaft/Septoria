@@ -47,7 +47,6 @@ impl Requests for TradingClient {
         let url = format!("{}/{}", self.base_url, path);
         let body_string = serde_json::to_string(&body)?;
         let r = self.client.post(&url).body(body_string).send()?;
-        dbg!(&r);
         let json = self.response_handler(r)?;
         Ok(json)
     }
