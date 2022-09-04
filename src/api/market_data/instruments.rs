@@ -1,20 +1,10 @@
 use serde::{Deserialize, Serialize};
 
-use crate::api::Requests;
+use crate::api::{Requests, PaginationResponse};
 use crate::client::TradingClient;
 use crate::{data_client::DataClient, error::Error, query_tuple};
 use chrono::prelude::*;
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct InstrumentResponse {
-    pub time: DateTime<Utc>,
-    pub results: Option<Vec<InstrumentInfo>>,
-    pub previous: String,
-    pub next: String,
-    pub total: i64,
-    pub page: i64,
-    pub pages: i64,
-}
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct InstrumentVenue {
@@ -28,14 +18,14 @@ pub struct InstrumentVenue {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct InstrumentInfo {
-    pub isin: String,
-    pub wkn: String,
-    pub name: String,
-    pub title: String,
-    pub symbol: String,
+    pub isin: Option<String>,
+    pub wkn: Option<String>,
+    pub name: Option<String>,
+    pub title: Option<String>,
+    pub symbol: Option<String>,
     #[serde(rename = "type")]
-    pub instrument_type: String,
-    pub venues: Vec<InstrumentVenue>,
+    pub instrument_type: Option<String>,
+    pub venues: Option<Vec<InstrumentVenue>>,
 }
 
 impl DataClient {
@@ -45,7 +35,7 @@ impl DataClient {
         isin: Option<String>,
         search: Option<String>,
         instrument_type: Option<String>,
-    ) -> Result<InstrumentResponse, Error> {
+    ) -> Result<PaginationResponse<InstrumentInfo>, Error> {
         const PATH: &str = "instruments/";
 
         // Build query
@@ -54,7 +44,7 @@ impl DataClient {
         TradingClient::get_query_string(query_tuple!(search), &mut query);
         TradingClient::get_query_string(query_tuple!(instrument_type), &mut query);
 
-        let resp = self.get_with_query::<InstrumentResponse, Vec<String>>(PATH, query);
+        let resp = self.get_with_query::<PaginationResponse<InstrumentInfo>, Vec<String>>(PATH, query);
         match resp {
             Ok(r) => Ok(r),
             Err(e) => Err(e),
