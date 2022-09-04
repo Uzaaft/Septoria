@@ -43,7 +43,7 @@ impl TradingClient {
         _limit: Option<i32>,
         _page: Option<i32>,
     ) -> Result<Response, Error> {
-        const PATH: &str = "account/withdrawals/";
+        const PATH: &str = "account/withdrawals";
         let resp = self.get::<Response>(PATH);
         match resp {
             Ok(r) => Ok(r),
