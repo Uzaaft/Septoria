@@ -5,12 +5,13 @@
 
 use chrono::prelude::*;
 use std::fmt::Debug;
+use std::io::Read;
 
 use reqwest::StatusCode;
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 
-use crate::error::Error;
+use crate::error::{Error, LemonError};
 
 /// Module for interacting with the account related endpoints
 mod market_data;
@@ -31,14 +32,13 @@ mod trading;
 /// * `page`: The current page number
 /// * `pages`: The total number of pages in the response.
 #[derive(Deserialize, Serialize, Debug)]
-
 pub struct PaginationResponse<T> {
     /// The time the request was made.
     pub time: DateTime<Utc>,
     /// The status of the request.
     pub status: Option<String>,
     /// The mode of the request. Can be paper, live, or market_data
-    pub mode: Option<String>,
+    pub mode: Option<Mode>,
     /// The actual results of the query. Depends upon the given generics
     pub results: Option<Vec<T>>,
     /// The URL of the previous page of results.
@@ -60,7 +60,7 @@ pub struct Response {
     pub time: String,
     /// Environment the request was placed in: "paper" or "money"
     // TODO: Make this an enum
-    pub mode: String,
+    pub mode: Mode,
     /// Status of the request. Returns 'ok' if successful
     pub status: String,
 }
@@ -72,12 +72,36 @@ pub struct GenericResponse<T> {
     pub time: DateTime<Utc>,
     /// Environment the request was placed in: "paper" or "money"
     // TODO: Make this an enum
-    pub mode: String,
+    pub mode: Mode,
     /// Status of the request.
     pub status: String,
     /// The actual results of the query. Depends upon the given generics
     pub results: Option<T>,
 }
+
+
+/// Trading mode
+#[derive(Deserialize, Serialize, Debug)]
+#[serde(rename_all = "lowercase")]
+pub enum Mode {
+    /// Paper trading mode
+    Paper,
+    /// Live trading mode
+    Live,
+    /// Market data mode
+    MarketData,
+}
+
+impl std::fmt::Display for Mode {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match *self {
+            Mode::Paper => write!(f, "paper"),
+            Mode::Live => write!(f, "live"),
+            Mode::MarketData => write!(f, "market_data"),
+        }
+    }
+}
+
 
 /// Traits with API methods that are common across all calls
 pub(crate) trait Requests {
@@ -99,13 +123,13 @@ pub(crate) trait Requests {
     /// Crate wide function to handle responses and errors
     fn response_handler<T: DeserializeOwned>(
         &self,
-        response: reqwest::blocking::Response,
+        mut response: reqwest::blocking::Response,
     ) -> Result<T, Error> {
         match response.status() {
             StatusCode::OK => Ok(response.json::<T>()?),
             s => {
-                let message = s.to_string();
-                Err(Error::Str(message))
+                let message = response.json::<LemonError>()?;
+                Err(Error::Str(message.to_string()))
             }
         }
     }
