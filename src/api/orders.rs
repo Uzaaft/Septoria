@@ -71,6 +71,10 @@ pub struct OrderResults {
     pub key_creation_id: Option<String>,
 }
 
+
+
+
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct RegulatoryInformation {
     pub costs_entry: Option<i64>,
@@ -102,6 +106,18 @@ pub struct ActivateOrder {
 }
 
 impl TradingClient {
+
+    /// Get orders
+    pub fn get_order(&self, id: Option<String>) -> Result<Response<OrderResults>, Error> {
+        let url = format!("{}/orders/{}", self.base_url, id);
+        let response = self.client.get(&url).send()?;
+        let body = response.text()?;
+        let order = serde_json::from_str(&body)?;
+        Ok(order)
+    }
+
+
+
     /// Post and create a new order.
     pub fn post_order(&self, _body: OrderPlacing) -> Result<GenericResponse<OrderResults>, Error> {
         const PATH: &str = "orders/";
