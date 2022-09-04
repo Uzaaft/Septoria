@@ -1,11 +1,11 @@
+use crate::api::Mode;
 use chrono::prelude::*;
 /// In general, an error will be returned in the following format.
 /// Lemons docks: [Error Handling](https://docs.lemon.markets/error-handling)
 use reqwest::{Error as ReqwestError, StatusCode};
-use serde_json::Error as JsonError;
 use serde::{Deserialize, Serialize};
+use serde_json::Error as JsonError;
 use thiserror::Error;
-use crate::api::Mode;
 
 /// Error type for the library
 #[derive(Debug, Error)]
@@ -46,9 +46,8 @@ pub struct LemonError {
     error_message: String,
 }
 
-
 /// Error codes for the Lemon API
-#[derive(Serialize, Deserialize, Debug, )]
+#[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "snake_case")]
 pub enum ErrorCode {
     /// The API key is not provided in the HTTP header,
@@ -116,6 +115,10 @@ impl std::fmt::Display for ErrorCode {
 
 impl std::fmt::Display for LemonError {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "time: {}, mode: {}, status: {}, error_code: {}, error_message: {}", self.time, self.mode, self.status, self.error_code, self.error_message)
+        write!(
+            f,
+            "time: {}, mode: {}, status: {}, error_code: {}, error_message: {}",
+            self.time, self.mode, self.status, self.error_code, self.error_message
+        )
     }
 }

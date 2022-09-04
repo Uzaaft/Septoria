@@ -1,10 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-use crate::api::{Requests, PaginationResponse};
+use crate::api::{PaginationResponse, Requests};
 use crate::client::TradingClient;
 use crate::{data_client::DataClient, error::Error, query_tuple};
-use chrono::prelude::*;
-
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct InstrumentVenue {
@@ -44,7 +42,8 @@ impl DataClient {
         TradingClient::get_query_string(query_tuple!(search), &mut query);
         TradingClient::get_query_string(query_tuple!(instrument_type), &mut query);
 
-        let resp = self.get_with_query::<PaginationResponse<InstrumentInfo>, Vec<String>>(PATH, query);
+        let resp =
+            self.get_with_query::<PaginationResponse<InstrumentInfo>, Vec<String>>(PATH, query);
         match resp {
             Ok(r) => Ok(r),
             Err(e) => Err(e),
@@ -64,7 +63,7 @@ mod tests {
         let api_key = env::var("LEMON_MARKET_DATA_API_KEY").unwrap();
         let client = DataClient::new(api_key);
         let stock_name = "Aker";
-        let instruments = client
+        let _instruments = client
             .get_instruments(None, Some(stock_name.to_string()), None)
             .unwrap();
     }

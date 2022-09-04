@@ -46,6 +46,6 @@ mod tests {
         dotenv::dotenv().unwrap();
         let api_key = env::var("LEMON_MARKET_DATA_API_KEY").unwrap();
         let client = DataClient::new(api_key);
-        let venues = client.get_venues().unwrap();
+        let _venues = client.get_venues().unwrap();
     }
 }

@@ -5,7 +5,6 @@
 
 use chrono::prelude::*;
 use std::fmt::Debug;
-use std::io::Read;
 
 use reqwest::StatusCode;
 use serde::de::DeserializeOwned;
@@ -79,7 +78,6 @@ pub struct GenericResponse<T> {
     pub results: Option<T>,
 }
 
-
 /// Trading mode
 #[derive(Deserialize, Serialize, Debug)]
 #[serde(rename_all = "lowercase")]
@@ -102,7 +100,6 @@ impl std::fmt::Display for Mode {
     }
 }
 
-
 /// Traits with API methods that are common across all calls
 pub(crate) trait Requests {
     /// Generic get request
@@ -123,11 +120,11 @@ pub(crate) trait Requests {
     /// Crate wide function to handle responses and errors
     fn response_handler<T: DeserializeOwned>(
         &self,
-        mut response: reqwest::blocking::Response,
+        response: reqwest::blocking::Response,
     ) -> Result<T, Error> {
         match response.status() {
             StatusCode::OK => Ok(response.json::<T>()?),
-            s => {
+            _s => {
                 let message = response.json::<LemonError>()?;
                 Err(Error::Str(message.to_string()))
             }
