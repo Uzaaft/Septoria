@@ -3,9 +3,12 @@ name = "septoria"
 authors = ["Uzair Aftab <uzaaft@outlook.com>"]
 version = "0.1.0"
 edition = "2021"
+description = "An API to interact with lemon.markets"
 license = "GNU General Public License v3.0"
 license-file = "LICENSE"
-
+include = ["Cargo.toml", "LICENSE", "README.md", "src/**/*.rs"]
+repository = "https://github.com/uzaaft/Septoria"
+homepage = "https://github.com/uzaaft/Septoria"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
