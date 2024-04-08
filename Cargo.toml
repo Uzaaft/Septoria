@@ -17,7 +17,7 @@ chrono = { version = "0.4.22", features = ["serde"] }
 serde = { version = "1.0.144", features = ["derive"] }
 serde_json = { version = "1.0.85" }
 thiserror = "1.0.35"
-reqwest = { version = "0.11.11", features = ["json", "blocking"] }
+reqwest = { version = "0.12.3", features = ["json", "blocking"] }
 serde_urlencoded = "0.7.1"
 serde_variant = { git = "https://github.com/d-e-s-o/serde_variant", version = "0.1.1" }
 
